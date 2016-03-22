@@ -1,0 +1,19 @@
+<detectors>
+		<detector id="west_lane_out!202305472!no-id" lat="36.1387471242587" lng="-86.81103855371475" type="out" />
+		<detector id="west_lane_in!202305472!19485812#3" lat="36.13864143798003" lng="-86.81105464696884" type="in" />
+		<detector id="east_lane_in!202305472!19456179#4" lat="36.13872108562353" lng="-86.81062549352646" type="in" />
+		<detector id="east_lane_out!202305472!no-id" lat="36.13860620918882" lng="-86.81062281131744" type="out" />
+		<detector id="north_lane_in!202305472!19457616#3" lat="36.13893705286544" lng="-86.8108494579792" type="in" />
+		<detector id="north_lane_out!202305472!no-id" lat="36.13893398950445" lng="-86.81076228618622" type="out" />
+		<detector id="south_lane_out!202305472!no-id" lat="36.13850664947607" lng="-86.81090041995049" type="out" />		
+		<detector id="south_lane_in!202305472!-19457616#4" lat="36.138494395964216" lng="-86.81082800030708" type="in" />
+		
+		<detector id="west_lane_out!202305458!no-id" lat="36.137688723361165" lng="-86.80095881223679" type="out" />
+		<detector id="west_lane_in!202305458!-19456179#0" lat="36.13755546492798" lng="-86.80097088217735" type="in" />
+		<detector id="east_lane_in!202305458!19479801#4" lat="36.1376136697887" lng="-86.80055111646652" type="in" />
+		<detector id="east_lane_out!202305458!no-id" lat="36.13750798198331" lng="-86.80056855082512" type="out" />
+		<detector id="north_lane_in!202305458!19463160#7" lat="36.13787405942646" lng="-86.80077642202377" type="in" />
+		<detector id="north_lane_out!202305458!no-id" lat="36.13784648879983" lng="-86.80067718029022" type="out" />
+		<detector id="south_lane_out!202305458!no-id" lat="36.13738850864058" lng="-86.80083140730858" type="out" />	
+		<detector id="south_lane_in!202305458!-19463160#8" lat="36.1373915720619" lng="-86.80073216557503" type="in" />
+</detectors>

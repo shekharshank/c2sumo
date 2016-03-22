@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">C3STEM Traffic</string>
+    <string name="menu_settings">Settings</string>
+    <string name="reset_map">Reset Map</string>
+    <string name="enter_interval">Refresh freq\n in sec: </string>
+    <string name="enter_ip">Server: </string>
+    <string name="interval_default">0.75</string>
+    <string name="server_default">X.X.X.X</string>
+    <string name="run_messenger">Set</string>
+    <string name="PROGRESS_DIALOG_TITLE">Traffic Map</string>
+    <string name="PROGRESS_DIALOG_MESSAGE_MESSENGER">Loading...</string>
+    <string name="URL_PREFIX">http://</string>
+    <string name="DOWNLOAD_URL_SUFFIX">/Data/TrafficData.xml</string>
+    <string name="UPLOAD_URL_SUFFIX">/upload</string>
+    <string name="SET_MAX_SPEED_URL_SUFFIX">/setMaxSpeed?laneID=19485812%233_0</string>
+    <string name="INVALID_URL_ERROR">Unable to communicate with server</string>
+    <string name="view_radio">View</string>
+    <string name="edit_radio">Edit</string>
+    <string name="camera">Mark Image</string>
+    <string name="plot_location">Mark Item</string>
+	<string name="ENTER_MAX_SPEED_DIALOG_TITLE">Enter Max Speed of Lane in mph</string>
+	<string name="ENTER_MAX_SPEED_LABEL">Enter max speed in m/s</string>
+	<string-array name="SPEED_LIMIT_ARRAY">
+        <item>20</item>
+        <item>30</item>
+        <item>40</item>
+        <item>50</item>
+        <item>60</item>
+        <item>70</item>
+    </string-array>
+</resources>

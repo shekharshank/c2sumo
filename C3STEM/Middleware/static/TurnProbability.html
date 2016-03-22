@@ -1,0 +1,149 @@
+<script type="text/javascript">
+  jQuery(document).ready(function () {
+    var left_turn = $("#left_turn"),
+    right_turn = $("#right_turn"),
+    go_straight = $("#go_straight"),
+    allFields = $([]).add(left_turn).add(right_turn).add(go_straight),
+    tips = $(".validateTips");
+
+    if(!isCurrentSimulation) {
+	    	left_turn.prop('disabled', true);
+	    	right_turn.prop('disabled', true);
+	    	go_straight.prop('disabled', true);
+	    	//$("#defineTurnProbability_UpdateButton").prop('disabled', true);
+    }
+
+    function updateTips(t) {
+      tips
+      .text(t)
+      .addClass("ui-state-highlight");
+      setTimeout(function () {
+       $('#defineTurnProbability').dialog("close");
+      }, 500);
+    }
+
+    function checkLength(o, n, min, max) {
+      if (o.val().length > max || o.val().length < min) {
+        o.addClass("ui-state-error");
+        updateTips("Length of " + n + " must be between " +
+        min + " and " + max + ".");
+        return false;
+      } else {
+        return true;
+      }
+    }
+
+    function checkRegexp(o, regexp, n) {
+      if (!(regexp.test(o.val()))) {
+        o.addClass("ui-state-error");
+        updateTips(n);
+        return false;
+      }
+      else {
+        return true;
+      }
+    }
+
+    $("#turnProbabilityForm").submit(function () {
+      allFields.removeClass("ui-state-error");
+      var bValid = true;
+      bValid = bValid && checkRegexp(left_turn, /^\d*\.?\d*$/, "Left turn probability must be decimal number.");
+      bValid = bValid && checkRegexp(right_turn, /^\d*\.?\d*$/, "Right turn probability must be decimal number.");
+      bValid = bValid && checkRegexp(go_straight, /^\d*\.?\d*$/, "Go Straight probability must be decimal number.");
+
+      if (bValid) {
+        var postdata = { edge_id: $("#txt_edge_id").val(), left_turn: $("#left_turn").val(), right_turn: $("#right_turn").val(), go_straight: $("#go_straight").val() };
+        $.post('/updateTurnProbability', postdata, function (data) {
+          var isJSON = (typeof data == 'object');
+          if (isJSON) {
+            if (data['response']['status'] == "failure")
+              alert("Unauthorized Access");
+            else {
+              //$("#dialog-message").dialog("open");
+              updateTips("Turning probability for this intersection has successfully been updated.");
+            }
+          }
+          else {
+            $('body').html(data);
+          }
+        });
+      }
+      return false;
+    });
+
+    $("#getTurnProbabilityForm").submit(function () {
+      var postdata = { edge_id: $("#txt_edge_id").val() };
+      $.post('/readTurnProbability', postdata, function (data) {
+
+        var isJSON = typeof data == 'object';
+        if (isJSON) {
+          if (data['response']['status'] == "failure")
+            alert("Unauthorized Access");
+          else {
+            var left_turn = data['response']['left_turn'];
+            var right_turn = data['response']['right_turn'];
+            var go_straight = data['response']['go_straight'];
+
+            $("#left_turn").val(left_turn);
+            $("#right_turn").val(right_turn);
+            $("#go_straight").val(go_straight);
+          }
+        }
+        else {
+          $('body').html(data);
+        }
+      });
+      return false;
+    });
+
+
+    $("#dialog-message").dialog({
+      autoOpen: false,
+      height: 'auto',
+      width: 'auto',
+      autoResize: true,
+      title: 'Update complete',
+      resizable: false,
+      modal: true,
+      buttons: {
+        Ok: function () {
+          $(this).dialog("close");
+        }
+      }
+    });
+
+  });
+</script>
+
+<form id="turnProbabilityForm" action="#" method="post">
+  <table>
+    <tr>
+      <td colspan="3" style="text-align: center"> <p class="validateTips">All form fields are required. Total must be 1. </p></td>
+    </tr>
+    <tr>
+      <td>Turn Left</td>
+      <td>Go Straight</td>
+      <td>Turn Right</td>
+    </tr>
+    <tr>
+      <td>
+        <input type="text" name="left_turn" id="left_turn" class="text ui-widget-content ui-corner-all" size="8" /></td>
+      <td>
+        <input type="text" name="go_straight" id="go_straight" value="" class="text ui-widget-content ui-corner-all" size="8" />
+      </td>
+      <td>
+        <input type="text" name="right_turn" id="right_turn" class="text ui-widget-content ui-corner-all" size="8" />
+        <input id="txt_edge_id" name="txt_edge_id" type="hidden" />
+      </td>
+    </tr>
+  </table>
+</form>
+<form id="getTurnProbabilityForm" action="#" method="post">
+
+</form>
+<div id="dialog-message">
+  <p>
+    <span class="ui-icon ui-icon-circle-check" style="float: left; margin: 0 7px 50px 0;"></span>
+    Turning probability for this intersection <br /> has successfully been updated.
+  </p>
+</div>

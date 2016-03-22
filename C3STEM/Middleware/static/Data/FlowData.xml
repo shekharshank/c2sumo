@@ -1,0 +1,8 @@
+<flows>
+	<flow id="pointA" name="31st Ave - West End" edge_id="19485812#0" lat="36.14255346852943" lng="-86.81547224521637" />
+	<flow id="pointB" name="Natchez Trace - 28th Ave" edge_id="19457616#2" lat="36.14304298829766" lng="-86.81011319160461" />
+	<flow id="pointC" name="Natchez Trace  - Fairfax Ave" edge_id="19457616#7" lat="36.13508466424713" lng="-86.81141138076782" />
+	<flow id="pointD" name="24th Ave - Blair Ave" edge_id="19479459#3" lat="36.13096872001422" lng="-86.80603623390198" />
+	<flow id="pointE" name="24th Ave - Highland Ave" edge_id="19479457#1" lat="36.14252314419553" lng="-86.80477559566498" />
+	<flow id="pointF" name="Wedgewood Ave - 19th Ave" edge_id="19479801#3" lat="36.13731368287647" lng="-86.79816260933876" />
+</flows>

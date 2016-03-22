@@ -1,0 +1,108 @@
+<script type="text/javascript">
+    jQuery(document).ready(function () {
+
+      jQuery("#versionsTable").jqGrid({
+        url: '/readSimulations',
+        datatype: "json",
+        loadonce: true,
+        colNames: ['Simulation Name', 'Problem No.', 'User', 'Group', 'Mode', 'Shared With', 'Vehicle Count', 'Avg Speed', 'Avg Wait Time', 'Sim Time','',''],
+        colModel: [
+          { name: 'sim_label', index: 'sim_label',  sortable: true, editable: false, align: "center"},
+          { name: 'problem_number', index: 'problem_number',  sortable: true, editable: false, width: 80, align: "center"},
+          { name: 'user', index: 'user',  sortable: true, editable: false, width: 70, align: "center"},
+          { name: 'group', index: 'group',  sortable: true, editable: false, width: 70, align: "center"},
+          { name: 'mode', index: 'mode',  sortable: true, editable: false, width: 80, align: "center"},
+          { name: 'shared_with', index: 'shared_with',  sortable: true, editable: false, width: 80, align: "center"},
+          { name: 'count', index: 'count',  sortable: true, editable: false, width: 90, align: "center"},
+          { name: 'speed', index: 'speed',  sortable: true, editable: false, width: 80, align: "center"},
+          { name: 'wait_time', index: 'wait_time',  sortable: true, editable: false, width: 90, align: "center"},
+          { name: 'bktime', index: 'bktime',  sortable: true, editable: false, sorttype: "date", formatter: "date", "datefmt": "Y-m-d H:i:s",
+          		formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: "Y-m-d H:i:s" }, align: "center"},
+          { name: 'load', index: 'load', width: 20, sortable: false, search: false,
+		                        formatter:function(cellvalue, options, rowObject){
+		                        	return "<span class='ui-icon ui-icon-triangle-1-e'></span>"
+		                       }},
+		  { name: 'copy', index: 'copy', width: 20, sortable: false, search: false,
+		                        formatter:function(cellvalue, options, rowObject){
+		                        	return "<span class='ui-icon ui-icon-plus'></span>"
+		                       }}
+
+        ],
+        multiselect: false,
+        viewrecords: true,
+        pager: '#simNavBar',
+        caption: "Versions",
+        sortname: 'name',
+		jsonReader: {
+		      root: 'sim_versions',
+          	  id: "id",
+		      page:  function(obj) { return 1; },
+		      total: function(obj) { return 1; },
+		      records: function(obj) {return obj.sim_versions.length; }
+		},
+		//beforeSelectRow: function (rowid, e) { return false; }
+		onCellSelect: function (rowid,iCol,cellcontent,e) {
+			var col = $("#versionsTable").jqGrid("getGridParam", "colModel");
+			var colName = col[iCol]['index'];
+			if (colName === "load") {
+				   tempSimulationId = rowid;
+				   $("#loadConfirmationDialog").dialog("open");
+		    } else if (colName === "copy") {
+				   tempSimulationId = rowid;
+				   $("#copyConfirmationDialog").dialog("open");
+		    }
+         }
+     });
+
+     jQuery("#versionsTable").jqGrid('navGrid', "#simNavBar",
+	 		{ edit: false, add: false, del: true },
+	 		{url: "/"}, {url: "/"},
+	 		{mtype:"GET",reloadAfterSubmit:true,
+	 			url: '/deleteSimVersion',
+	 			onclickSubmit: function (params, posdata) {
+	 				return {};
+
+	 			} //Del
+	 		}
+	);
+
+   });
+   $("#loadConfirmationDialog").dialog({
+                   autoOpen: false,
+                   height: 'auto',
+                   width: 350,
+                   autoResize: true,
+                   resizable: false,
+                   show: {
+                       effect: "blind",
+                       duration: 5
+                   },
+                   hide: {
+                       effect: "explode",
+                       duration: 5
+                   },
+                   buttons: {
+                       "Ok": function () {
+                       	   isCurrentSimulation = false;
+                       	   loadedSimulationId = tempSimulationId;
+                       	   $("#startSim").removeAttr('href');
+                       	   $("#finishSim").removeAttr('href');
+                       	   $("#speedupSim").removeAttr('href');
+                       	   $("#restoreSim").removeAttr('href');
+                       	   $("#saveSim").removeAttr('href');
+                       	   $("#btnHideShowButton").addClass("HideShowButtonBold");
+                       	   $("#btnHideShowButton").button("option", "label", "Simulation: " +  $("#versionsTable").getCell(loadedSimulationId, "sim_label"));
+                       	   $("#btnProblemID").button("option", "label", "P" + $("#versionsTable").getCell(loadedSimulationId, "problem_number"));
+                           $(this).dialog("close");
+                       },
+                       Cancel: function () {
+                           $(this).dialog("close");
+                       }
+                   }
+    });
+
+
+</script>
+<table id="versionsTable"/>
+<div id="simNavBar"/>
+<div id="loadConfirmationDialog" title="Confirmation">Do you want to load this simulation's results?</div>

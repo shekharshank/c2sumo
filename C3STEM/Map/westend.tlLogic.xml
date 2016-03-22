@@ -1,0 +1,8 @@
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.sf.net/xsd/additional_file.xsd">
+<tlLogic id="202305472" type="static" offset="0">
+<phase duration="30" state="grrrgGGGGgrrrgGGGG"/>
+<phase duration="5" state="grrrgyyyygrrrgGGGG"/>
+<phase duration="35" state="gGGGgrrrrgGGGgrrrr"/>
+<phase duration="5" state="gyyygrrrrgyyygrrrr"/>
+</tlLogic>
+</additional>

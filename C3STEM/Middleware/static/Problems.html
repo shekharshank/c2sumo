@@ -1,0 +1,101 @@
+<script type="text/javascript">
+  jQuery(document).ready(function () {
+    var tips = $(".validateTips");
+	if(!isCurrentSimulation) {
+    	$("#selectProblem_SetButton").prop('disabled', true);
+    }
+    function updateTips(t) {
+      tips
+      .text(t)
+      .addClass("ui-state-highlight");
+      setTimeout(function () {
+      	$('#selectProblem').dialog("close");
+      }, 500);
+    }
+
+    $("#problemForm").submit(function () {
+      nextProblemID = $("#sel_problem_id").val();
+      var postdata = { problem_id: $("#sel_problem_id").val()};
+      $.post('/updateProblem', postdata, function (data) {
+        var isJSON = (typeof data == 'object');
+        if (isJSON) {
+          if (data['response'] == "failure")
+            $.notify("Unauthorized Access", "error");
+          else if (data['response'] == "not_admin")
+         		$.notify("Only admin can change the problem id", "error");
+          else {
+          	intersectionType = data['response']['problem_type'];
+			updateIntersection(intersectionType);
+            updateTips("Your problem number has successfully been updated.");
+          }
+        }
+        else {
+          $('body').html(data);
+        }
+      });
+
+      return false;
+    });
+
+    $("#getProblemForm").submit(function () {
+      var postdata = { problem_id: $("#sel_problem_id").val() };
+      $.post('/readProblem', postdata, function (data) {
+
+        var isJSON = typeof data == 'object';
+        if (isJSON) {
+          if (data['response']['status'] == "failure")
+            alert("Unauthorized Access");
+          else {
+            var problem_title = data['response']['title'];
+            var problem_description = data['response']['description'];
+
+            $("#problem_title").text(problem_title);
+            $("#problem_description").text(problem_description);
+          }
+        }
+        else {
+          $('body').html(data);
+        }
+      });
+      return false;
+    });
+
+    $("#sel_problem_id").change(function () {
+      $("#getProblemForm").submit();
+    });
+  });
+</script>
+
+<form id="problemForm" action="#" method="post">
+  <table>
+    <tr>
+      <td colspan="3" style="text-align: center">
+        <p class="validateTips"></p>
+        <p>Please select the problem you will work on</p>
+      </td>
+    </tr>
+    <tr>
+      <td width="25">Problem:</td>
+      <td align="left">
+        <select id="sel_problem_id" class="text ui-widget-content ui-corner-all">
+          <option value="3">3</option>
+		  <option value="6a">6(a)</option>
+		  <option value="6b">6(b)</option>
+		  <option value="6c">6(c)</option>
+          <option value="8">8</option>
+        </select>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td colspan="3">
+        <b>
+          <div type="text" id="problem_title" class="text">Title</div>
+        </b></br>
+        <div type="text" id="problem_description" class="text">Description</div>
+      </td>
+    </tr>
+  </table>
+</form>
+<form id="getProblemForm" action="#" method="post">
+</form>

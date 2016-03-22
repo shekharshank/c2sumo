@@ -1,0 +1,390 @@
+<style>
+  .ui-jqgrid .ui-jqgrid-htable th div {
+    height: auto;
+    overflow: hidden;
+    padding-right: 4px;
+    padding-top: 2px;
+    position: relative;
+    vertical-align: text-top;
+    white-space: normal !important;
+  }
+</style>
+<script type="text/javascript">
+
+  function loadTrafficLights(dataFolder) {
+    /*Traffic Lights*/
+    var rowID = -1;
+    var cNames = [];
+    var cModel = [];
+    var trafficLightLinks = '';
+
+
+    downloadUrl("/static/Data/" + dataFolder + "/TrafficSignalData.xml?r=" + Math.random(), function (doc) {
+      this.trafficSignalDataXml = xmlParse(doc);
+
+      var trafficLights = this.trafficSignalDataXml.documentElement.getElementsByTagName("trafficlight");
+
+      cNames.push('Intersection ID');
+      cModel.push({ name: 'intersection_id', index: 'intersection_id', width: 80, sortable: false, editable: false, editoptions: { readonly: true }, hidden: true });
+
+      $.each(trafficLights, function (i, trafficLight) {
+        var trafficLightId = trafficLights[i].getAttribute("id");
+        var imageId = trafficLights[i].getAttribute("img_id");
+        var intersectionId = trafficLights[i].getAttribute("intersection_id");
+        var trafficLightName = trafficLights[i].getAttribute("name");
+        var trafficLightState = trafficLights[i].getAttribute("state");
+        var trafficLightLinkIndex = trafficLights[i].getAttribute("link_index");
+
+        if (intersectionId == $("#txt_intersection_id").val()) {
+          cNames.push(trafficLightName);
+          cModel.push({
+            name: 'state_' + trafficLightName, index: 'state' + trafficLightName, width: 80, height: 60, sortable: false, editable: false, editoptions: { readonly: true }
+          });
+          trafficLightLinks += trafficLightLinkIndex;
+          trafficLightLinks += "-";
+        }
+      });
+
+
+      cNames.push('Duration (sec)');
+      if(!isCurrentSimulation)
+      	cModel.push({ name: 'duration', index: 'duration', width: 120, height: 40, align: "right", formatter: 'integer', sortable: false, editable: false });
+      else
+      	cModel.push({ name: 'duration', index: 'duration', width: 120, height: 40, align: "right", formatter: 'integer', sortable: false, editable: true });
+
+      jQuery("#trafficLight").jqGrid({
+        url: '/readTrafficLightLogic?intersection_id=' + $("#txt_intersection_id").val() + '&light_index=' + $("#txt_light_index").val(),
+        datatype: "json",
+        width: 650,
+        height: 250,
+        colNames: cNames,
+        colModel: cModel,
+        multiselect: false,
+        viewrecords: true,
+        rownumbers: true,
+        pager: '#lightNavBar',
+        caption: "Traffic Light Logic Programming",
+        sortname: 'name',
+        jsonReader: {
+          root: 'logic',
+          id: "id",
+          page: function (obj) { return 1; },
+          total: function (obj) { return 1; },
+          records: function (obj) { return obj.logic.length; }
+        },
+        /*ondblClickRow: function (rowid, iRow, iCol, e) {
+          var colModel = jQuery("#trafficLight").jqGrid('getGridParam', 'colModel');
+          var colName = colModel[iCol].name;
+          var cell = jQuery("#trafficLight").jqGrid("getCell", rowid, colName);
+
+          if (cell != null) {
+            if (cell.indexOf("Green") >= 0) {
+              jQuery('#trafficLight').jqGrid('setCell', rowid, colName, 'Yellow', { color: 'orange', background: 'orange' });
+            }
+            else if (cell.indexOf("Yellow") >= 0) {
+              jQuery('#trafficLight').jqGrid('setCell', rowid, colName, 'Red', { color: 'red', background: 'red' });
+            }
+            else if (cell.indexOf("Red") >= 0) {
+              jQuery('#trafficLight').jqGrid('setCell', rowid, colName, 'Green', { color: 'green', background: 'green' });
+            }
+          }
+          return;
+        },*/
+        loadComplete: function () {
+          var colModel = jQuery("#trafficLight").jqGrid('getGridParam', 'colModel');
+          var ids = jQuery("#trafficLight").jqGrid('getDataIDs');
+          for (var i = 0; i < colModel.length; i++) {
+            var colName = colModel[i].name;
+            for (var j = 0; j < ids.length; j++) {
+              var cell = jQuery("#trafficLight").jqGrid("getCell", ids[j], colName);
+
+              if (cell != null) {
+                if (cell.indexOf("Green") >= 0) {
+                  $('#trafficLight').jqGrid('setCell', ids[j], colName, '', { color: 'green', background: 'green', "-moz-user-select": 'none' });
+                }
+                else if (cell.indexOf("Yellow") >= 0) {
+                    $('#trafficLight').jqGrid('setCell', ids[j], colName, '', { color: 'orange', background: 'orange', "-moz-user-select": 'none' });
+                }
+                else if (cell.indexOf("Red") >= 0)
+                {
+                  $('#trafficLight').jqGrid('setCell', ids[j], colName, '', { color: 'red', background: 'red', "-moz-user-select": 'none' });
+                }
+              }
+            }
+          }
+        }
+      });
+
+      jQuery("#trafficLight").jqGrid('navGrid', "#lightNavBar",
+        { edit: false, add: false, del: false, search: false, refresh:false, deltext:"Delete" },
+        {
+        }, //Edit
+        {
+        }, //Add
+        {
+          mtype: "GET", reloadAfterSubmit: true,
+          url: '/deleteTrafficLightLogic',
+          onclickSubmit: function (params, posdata) {
+            return {};
+          }
+        }, //Del
+        {}
+      );
+
+      jQuery("#trafficLight").jqGrid('inlineNav', "#lightNavBar",
+        {
+          edit: true, add: false, del: false, search: false, refresh: false,
+          edittext: "Edit",
+          addtext: "Add",
+          savetext: "Save",
+          canceltext: "Cancel",
+          /*
+          addParams: {
+            position: "last",
+            addRowParams: {
+              mtype: "POST",
+              // the parameters of editRow used to edit new row
+              keys: false,
+              url: '/createTrafficLightLogic',
+              successfunc: function (response) {
+                jQuery("#trafficLight").jqGrid('setGridParam', { datatype: 'json' }).trigger('reloadGrid');
+                return true;
+              },
+              oneditfunc: function (rowid) {
+                var colModel = jQuery("#trafficLight").jqGrid('getGridParam', 'colModel');
+
+                for (var i = 0; i < colModel.length; i++) {
+                  var colName = colModel[i].name;
+                  var cell = jQuery("#trafficLight").jqGrid("getCell", rowid, colName);
+
+                  if (cell != null) {
+                    if (colName.indexOf("state") >= 0) {
+                      $('#trafficLight').jqGrid('setCell', rowid, colName, 'Red', { color: 'red', background: 'red', "-moz-user-select": 'none' });
+                    }
+                  }
+                }
+              },
+              aftersavefunc: function (rowid, response) {
+
+              },
+              extraparam: {
+                intersection_id: $("#txt_intersection_id").val(),
+                traffic_light_links: trafficLightLinks.substring(0, trafficLightLinks.length - 1),
+                state0: function () {
+                  var selID = jQuery("#trafficLight").jqGrid('getGridParam', 'selrow');
+                  var cellValue = jQuery("#trafficLight").jqGrid('getCell', selID, 'state0');
+                  return cellValue;
+                },
+                state1: function () {
+                  var selID = jQuery("#trafficLight").jqGrid('getGridParam', 'selrow');
+                  var cellValue = jQuery("#trafficLight").jqGrid('getCell', selID, 'state1');
+                  return cellValue;
+                },
+                state2: function () {
+                  var selID = jQuery("#trafficLight").jqGrid('getGridParam', 'selrow');
+                  var cellValue = jQuery("#trafficLight").jqGrid('getCell', selID, 'state2');
+                  return cellValue;
+                },
+                state3: function () {
+                  var selID = jQuery("#trafficLight").jqGrid('getGridParam', 'selrow');
+                  var cellValue = jQuery("#trafficLight").jqGrid('getCell', selID, 'state3');
+                  return cellValue;
+                },
+                state4: function () {
+                  var selID = jQuery("#trafficLight").jqGrid('getGridParam', 'selrow');
+                  var cellValue = jQuery("#trafficLight").jqGrid('getCell', selID, 'state4');
+                  return cellValue;
+                },
+                state5: function () {
+                  var selID = jQuery("#trafficLight").jqGrid('getGridParam', 'selrow');
+                  var cellValue = jQuery("#trafficLight").jqGrid('getCell', selID, 'state5');
+                  return cellValue;
+                },
+                state6: function () {
+                  var selID = jQuery("#trafficLight").jqGrid('getGridParam', 'selrow');
+                  var cellValue = jQuery("#trafficLight").jqGrid('getCell', selID, 'state6');
+                  return cellValue;
+                },
+                state7: function () {
+                  var selID = jQuery("#trafficLight").jqGrid('getGridParam', 'selrow');
+                  var cellValue = jQuery("#trafficLight").jqGrid('getCell', selID, 'state7');
+                  return cellValue;
+                },
+              }
+            }
+          },*/
+
+          editParams: {
+            mtype: "POST",
+            reloadAfterSubmit: true,
+            // the parameters of editRow
+            keys: false,
+            url: '/updateTrafficLightLogic',
+            oneditfunc: function (rowid) {
+
+            },
+            successfunc: function (response) {
+              //jQuery("#trafficLight").jqGrid('setGridParam', { datatype: 'json' }).trigger('reloadGrid');
+              return true;
+            },
+            extraparam: {
+              /*state0: function () {
+                var selID = jQuery("#trafficLight").jqGrid('getGridParam', 'selrow');
+                var cellValue = jQuery("#trafficLight").jqGrid('getCell', selID, 'state0');
+                return cellValue;
+              },
+              state1: function () {
+                var selID = jQuery("#trafficLight").jqGrid('getGridParam', 'selrow');
+                var cellValue = jQuery("#trafficLight").jqGrid('getCell', selID, 'state1');
+                return cellValue;
+              },
+              state2: function () {
+                var selID = jQuery("#trafficLight").jqGrid('getGridParam', 'selrow');
+                var cellValue = jQuery("#trafficLight").jqGrid('getCell', selID, 'state2');
+                return cellValue;
+              },
+              state3: function () {
+                var selID = jQuery("#trafficLight").jqGrid('getGridParam', 'selrow');
+                var cellValue = jQuery("#trafficLight").jqGrid('getCell', selID, 'state3');
+                return cellValue;
+              },
+              state4: function () {
+                var selID = jQuery("#trafficLight").jqGrid('getGridParam', 'selrow');
+                var cellValue = jQuery("#trafficLight").jqGrid('getCell', selID, 'state4');
+                return cellValue;
+              },
+              state5: function () {
+                var selID = jQuery("#trafficLight").jqGrid('getGridParam', 'selrow');
+                var cellValue = jQuery("#trafficLight").jqGrid('getCell', selID, 'state5');
+                return cellValue;
+              },
+              state6: function () {
+                var selID = jQuery("#trafficLight").jqGrid('getGridParam', 'selrow');
+                var cellValue = jQuery("#trafficLight").jqGrid('getCell', selID, 'state6');
+                return cellValue;
+              },
+              state7: function () {
+                var selID = jQuery("#trafficLight").jqGrid('getGridParam', 'selrow');
+                var cellValue = jQuery("#trafficLight").jqGrid('getCell', selID, 'state7');
+                return cellValue;
+              },
+              traffic_light_links: function () {
+                return trafficLightLinks.substring(0, trafficLightLinks.length - 1);
+              }*/
+            },
+            aftersavefunc: null,
+            errorfunc: function () {
+              alert("Error occured while updating traffic light programming!");
+            },
+            afterrestorefunc: null,
+            restoreAfterError: true
+          },
+
+          /*addParams: {
+            position: "last"
+          },
+          onSelectRow: function (id) {
+            if (id && id !== lastSel) {
+              jQuery('#trafficLight').restoreRow(lastSel);
+              lastSel = id;
+            }
+            jQuery('#trafficLight').editRow(id, true);
+            rowID = id;
+            alert(rowID);
+          }*/
+        }
+       );
+      /*
+      function editTrafficLight() {
+        alert("edit");
+      }
+
+      jQuery("#trafficLight").jqGrid('editRow', rowID,
+      {
+        keys: true,
+        oneditfunc: editTrafficLight,
+        successfunc : null,
+        url: null,
+        extraparam : {},
+        aftersavefunc : null,
+        errorfunc: function () {
+          alert("edit error");
+        },
+        afterrestorefunc : null,
+        restoreAfterError : true,
+        mtype : "POST"
+      });
+
+      jQuery("#trafficLight").jqGrid('saveRow', rowID,
+      {
+        successfunc: function (response) {
+          alert("successfunc");
+          return true;
+        },
+        url: '/updateTrafficLightLogic',
+        extraparam: {
+          traffic_light_links: function () {
+            return trafficLightLinks.substring(0, trafficLightLinks.length - 1);
+          }
+        },
+        aftersavefunc: null,
+        errorfunc: function () {
+          alert("save error");
+        },
+        afterrestorefunc: null,
+        restoreAfterError: true,
+        mtype: "POST"
+      });*/
+
+      jQuery("#trafficLight").jqGrid('setLabel',
+        'state_west_to_east',
+        '<img src=\"Images/west_to_east_green_g.gif\">'
+      );
+
+      jQuery("#trafficLight").jqGrid('setLabel',
+        'state_east_to_west',
+        '<img src=\"Images/east_to_west_green_g.gif\">'
+      );
+
+      jQuery("#trafficLight").jqGrid('setLabel',
+        'state_south_to_north',
+        '<img src=\"Images/south_to_north_green_g.gif\">'
+      );
+
+      jQuery("#trafficLight").jqGrid('setLabel',
+        'state_north_to_south',
+        '<img src=\"Images/north_to_south_green_g.gif\">'
+      );
+
+      jQuery("#trafficLight").jqGrid('setLabel',
+        'state_south_to_west',
+        '<img src=\"Images/south_to_west_green_g.gif\">'
+      );
+
+      jQuery("#trafficLight").jqGrid('setLabel',
+        'state_north_to_east',
+        '<img src=\"Images/north_to_east_green_g.gif\">'
+      );
+
+      jQuery("#trafficLight").jqGrid('setLabel',
+        'state_west_to_north',
+        '<img src=\"Images/west_to_north_green_g.gif\">'
+      );
+
+      jQuery("#trafficLight").jqGrid('setLabel',
+        'state_east_to_south',
+        '<img src=\"Images/east_to_south_green_g.gif\">'
+      );
+    });
+  }
+
+</script>
+<div>
+  <input id="txt_intersection_id" name="txt_intersection_id" type="hidden" />
+  <input id="txt_light_index" name="txt_light_index" type="hidden" />
+  <input id="hdn_column_info" name="hdn_column_info" type="hidden" />
+  <table id="trafficLight">
+  </table>
+</div>
+<div id="lightNavBar">
+</div>

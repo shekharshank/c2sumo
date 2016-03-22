@@ -1,0 +1,74 @@
+<turn-defs>
+<interval begin="0" end="300">
+<fromEdge id="-19456179#4">
+	<toEdge id="19456179#4" probability="0"/>
+</fromEdge>
+<fromEdge id="-19456179#4">
+	<toEdge id="19485910#0" probability="0"/>
+	<toEdge id="-19456179#3" probability="1"/>
+</fromEdge>
+
+<fromEdge id="-19456179#3">
+	<toEdge id="19456179#3" probability="0"/>
+</fromEdge>
+<fromEdge id="-19456179#3">
+	<toEdge id="-19469820#6" probability="0"/>
+	<toEdge id="-19456179#2" probability="1"/>
+</fromEdge>
+
+
+<fromEdge id="-19456179#2">
+	<toEdge id="19456179#2" probability="0"/>
+</fromEdge>
+<fromEdge id="-19456179#2">
+	<toEdge id="-19479457#3" probability="0"/>
+	<toEdge id="19452653#0" probability="0"/>
+	<toEdge id="-19456179#1" probability="1"/>
+</fromEdge>
+
+
+<fromEdge id="-19456179#1">
+	<toEdge id="19456179#1" probability="0"/>
+</fromEdge>
+<fromEdge id="-19456179#1">
+	<toEdge id="19472982" probability="0"/>
+	<toEdge id="-19456179#0" probability="1"/>
+</fromEdge>
+
+
+
+<fromEdge id="19456179#0">
+	<toEdge id="-19456179#0" probability="0"/>
+</fromEdge>
+<fromEdge id="19456179#0">
+	<toEdge id="19472982" probability="0"/>
+	<toEdge id="19456179#1" probability="1"/>
+</fromEdge>
+
+
+<fromEdge id="19456179#1">
+	<toEdge id="-19456179#1" probability="0"/>
+</fromEdge>
+<fromEdge id="19456179#1">
+	<toEdge id="19452653#0" probability="0"/>
+	<toEdge id="-19479457#3" probability="0"/>
+	<toEdge id="19456179#2" probability="1"/>
+</fromEdge>
+
+
+<fromEdge id="19456179#2">
+	<toEdge id="-19456179#2" probability="0"/>
+</fromEdge>
+<fromEdge id="19456179#2">
+	<toEdge id="-19469820#6" probability="0"/>
+	<toEdge id="19456179#3" probability="1"/>
+</fromEdge>
+
+<fromEdge id="19456179#3">
+	<toEdge id="-19456179#3" probability="0"/>
+	<toEdge id="19485910#0" probability="0"/>
+	<toEdge id="19456179#4" probability="1"/>
+</fromEdge>
+
+</interval>
+</turn-defs>

@@ -1,0 +1,55 @@
+
+.CommonTable {
+	font-family:Tahoma,Verdana, Arial, Helvetica, sans-serif;
+	font-size:11px;
+	font-weight:bold;
+	color:#3F3D3D;
+	border-right:#eeeeee 1px solid;
+	border-top:#eeeeee 1px solid;
+	border-left:#eeeeee 1px solid;
+	border-bottom:#eeeeee 1px solid;	
+}
+
+.Toolbar
+{
+  width:440px;
+  height:39px;
+  left:10px;
+  top:5px;
+  position: absolute; 
+  background-color: rgba(232, 232, 232, 0.85);
+  border:1px solid #b7b8cc;
+}
+
+.AccordionMenu
+{
+  margin:0 auto;	
+  width:250px;
+  height: 'auto';
+  left:0px;
+  top:47px;
+  position: absolute; 
+}
+
+.MenuPanel
+{
+  margin:0 auto;	
+  width:250px;
+  left:0px;
+  top:2px;
+  position: absolute; 
+}
+
+.HideShowButton
+{
+  margin:0 auto;	
+  width:250px;
+  height:40px;
+  left:0px;
+  top:2px;
+  position: absolute;
+}
+
+.ui-button,  .ui-button-text .ui-button{  
+font-size: 15px !important; 
+}

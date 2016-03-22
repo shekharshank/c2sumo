@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>C3STEM - INSTITUTE FOR SOFTWARE INTEGRATED SYSTEMS</title>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link href="Styles/Main.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.2/themes/cupertino/jquery-ui.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="Tools/jqGrid-4.6.0/css/ui.jqgrid.css" />
+
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAc6WbHRRh5N7_g1lBzkatUZ138uMuI5io&amp;sensor=false"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+  <script type="text/javascript" src="Tools/jqGrid-4.6.0/js/i18n/grid.locale-en.js"></script>
+  <script type="text/javascript" src="Tools/jqGrid-4.6.0/js/jquery.jqGrid.min.js"></script>
+  <script type="text/javascript" src="Tools/spin.min.js"></script>
+  <script type="text/javascript" src="Tools/jquery.spin.js"></script>
+  <script type="text/javascript" src="Tools/notify-combined.min.js"></script>
+
+
+    <script type="text/javascript" src="Scripts/XmlUtils.js"></script>
+    <script type="text/javascript" src="Scripts/Traffic.js"></script>
+    <script type="text/javascript">
+        // Holds all markers on the map
+        isRunning = false;
+        isConfigured = false;
+        isCurrentSimulation = 1;
+        loadedSimulationId = "-1";
+        tempSimulationId = "-1";
+        var markersArray = [];
+        var vehiclesArray = [];
+        var stopSignArray = [];
+        var flowPointsArray = [];
+        var trafficSignalArray = [];
+        var trafficSignalIconArray = [];
+        var counter = 0;
+        var dataFolder = "";
+        var intersectionType = "UNPROTECTED";
+        var activeUserInfo = null;
+
+         // Holds all info windows
+        var infoWindowArray = new Array();
+
+         // global "map" variable
+        var map = null;
+
+         // Global traffic data xml
+        var trafficDataXml = null;
+
+         // Traffic Signal data xml
+        var trafficSignalDataXml = null;
+
+         // Actual problem student is working on
+        var actualProblemID = 1;
+
+        // Next problem set on Set Problem form
+        var nextProblemID = -1;
+
+        /* Load Google Charts*/
+        google.load("visualization", "1", {
+            packages: ["corechart", "table"]
+        });
+
+         // A function to create the marker and set up the event window function
+        function createMarker(id, latlng, infohtml, icn) {
+            if (!this.markersArray[id]) {
+                this.markersArray[id] = [];
+                this.markersArray[id][0] = new google.maps.Marker({
+                    position: latlng,
+                    map: map,
+                    zIndex: Math.round(latlng.lat() * -100000) << 5,
+                    icon: icn
+                });
+
+                this.markersArray[id][1] = this.bindInfoWindow(this.markersArray[id][0], this.map, infohtml);
+            }
+
+            if (latlng != "") {
+                this.markersArray[id][0].setPosition(latlng);
+            }
+
+            if (icn != "") {
+                this.markersArray[id][0].setIcon(icn);
+            }
+        }
+
+        function createFlowPoints(id, latlng, infohtml, icn, point_name, intersection_id) {
+          if (!this.flowPointsArray[id]) {
+            this.flowPointsArray[id] = [];
+            this.flowPointsArray[id][0] = new google.maps.Marker({
+              position: latlng,
+              map: map,
+              zIndex: Math.round(latlng.lat() * -100000) << 5,
+              icon: icn
+            });
+
+            //this.flowPointsArray[id][1] = this.bindInfoWindow(this.flowPointsArray[id][0], this.map, infohtml);
+
+            google.maps.event.addListener(flowPointsArray[id][0], 'click', function (event) {
+              $("#defineFlow").load('/static/Flows.html', function () {
+                $("#defineFlow").dialog('option', 'title', "Point " + point_name.substring(0, 1));
+                $("#txt_point_name").val(point_name);
+                $("#getFlowForm").submit();
+                // In collaboration mode disable update button of others intersections
+                if ($("#hdnAssociatedJunctions").val().indexOf(intersection_id) == -1) {
+                  $("#defineFlow_UpdateButton").hide(); //.prop('disabled', true);
+                }
+                $("#defineFlow").dialog("open");
+              });
+            });
+
+          }
+        }
+
+         // A function to create the marker and set up the event window function
+		function createStopSign(id, latlng, infohtml, icn) {
+		            if (!this.stopSignArray[id]) {
+		                this.stopSignArray[id] = [];
+		                this.stopSignArray[id][0] = new google.maps.Marker({
+		                    position: latlng,
+		                    map: map,
+		                    zIndex: Math.round(latlng.lat() * -100000) << 5,
+		                    icon: icn
+		                });
+
+		                this.stopSignArray[id][1] = this.bindInfoWindow(this.stopSignArray[id][0], this.map, infohtml);
+		            }
+        }
+
+
+         // A function to create the marker and set up the event window function
+        function createVehicleMarker(id, latlng, infohtml, icn) {
+            if (!this.vehiclesArray[id]) {
+                this.vehiclesArray[id] = [];
+                this.vehiclesArray[id][0] = new google.maps.Marker({
+                    position: latlng,
+                    map: map,
+                    zIndex: Math.round(latlng.lat() * -100000) << 5,
+                    icon: icn
+                });
+
+                this.vehiclesArray[id][1] = this.bindInfoWindow(this.vehiclesArray[id][0], this.map, infohtml);
+            }
+
+            this.vehiclesArray[id][2] = counter;
+
+            if (latlng != "") {
+                this.vehiclesArray[id][0].setPosition(latlng);
+            }
+
+            if (icn != "") {
+                this.vehiclesArray[id][0].setIcon(icn);
+            }
+        }
+
+        function bindInfoWindow(marker, map, html) {
+            var infowindow = new google.maps.InfoWindow({
+                size: new google.maps.Size(150, 50)
+            });
+
+            google.maps.event.addListener(marker, 'click', function () {
+                infowindow.setContent(html);
+                infowindow.open(map, marker);
+            });
+            return infowindow;
+        }
+
+         // Check whetwer a key exist in hashtable
+        function hasItem(key) {
+            return typeof (this.markersArray[key]) != 'undefined';
+        }
+
+         // Remove item from markers array
+        function removeItem(key) {
+            var tmpValue;
+            if (typeof (this.markersArray[key]) != 'undefined') {
+                this.length--;
+                var tmpValue = this.markersArray[key];
+                delete this.markersArray[key];
+            }
+
+            return tmpValue;
+        }
+
+        function createTrafficSignal(trafficLightId, imageId, trafficLightLinkIndex,
+            trafficLightLoc, title, intersectionId, trafficLightState, presentFolder, intersectionTitleName) {
+            var turnColor;
+            var trafficLightColor = "#FFFFFF";
+            var iconColorName = "";
+
+            switch (trafficLightState) {
+            case "Green":
+                trafficLightColor = "#347C17"
+                iconColorName = "green"
+                break;
+            case "Yellow":
+                trafficLightColor = "#FFA500"
+                iconColorName = "yellow"
+                break;
+            case "Red":
+                trafficLightColor = "#FF0000"
+                iconColorName = "red"
+                break;
+            }
+
+            switch (title) {
+            case "west_to_north":
+            case "south_to_west":
+            case "east_to_south":
+            case "north_to_east":
+                turnColor = "#000000"
+                break;
+
+            default:
+                turnColor = trafficLightColor
+            }
+
+            if (!this.trafficSignalArray[trafficLightId]) {
+                var populationOptions = {
+                    strokeColor: turnColor,
+                    strokeOpacity: 1,
+                    strokeWeight: 2,
+                    fillColor: trafficLightColor,
+                    fillOpacity: 4,
+                    map: map,
+                    center: trafficLightLoc,
+                    radius: 1,
+                    clickable: true
+                };
+                //var tlight = new google.maps.Circle(populationOptions);
+
+                var tlight = new google.maps.Marker({
+                    position: trafficLightLoc,
+                    map: map,
+                    zIndex: Math.round(trafficLightLoc.lat() * -100000) << 5,
+                    //icon: "/static/Images/" + iconColorName + "0" + imageId + ".png",
+					icon: "/static/Images/" +  imageId + "_" + iconColorName + "_s.gif",
+                    title: "Traffic Light "
+                });
+                //this.trafficSignalIconArray[trafficLightId] = signalIcon;
+
+                // In collaboration mode, show the rest of the intersections but disable clicking
+                if ($("#hdnAssociatedJunctions").val().indexOf(intersectionId) != -1) {
+                  google.maps.event.addListener(tlight, 'click', function (event) {
+                    $("#defineTrafficLight").load('/static/TrafficLight.html', function () {
+                      $("#defineTrafficLight").dialog('option', 'title', intersectionTitleName);
+                      $("#txt_intersection_id").val(intersectionId);
+                      $("#txt_light_index").val(trafficLightLinkIndex);
+                      $("#defineTrafficLight").dialog("open");
+                      loadTrafficLights(presentFolder);
+                    });
+                  });
+                }
+                this.trafficSignalArray[trafficLightId] = tlight;
+            } else {
+                /*var tlight = this.trafficSignalArray[trafficLightId];
+                var populationOptions = {
+                    fillColor: trafficLightColor,
+                    strokeColor: turnColor
+                };
+                tlight.setOptions(populationOptions);*/
+
+                var tlight = this.trafficSignalArray[trafficLightId];
+                //signalIcon.setIcon("/static/Images/" + iconColorName + "0" + imageId + ".png");
+				        tlight.setIcon("/static/Images/" +  imageId + "_" + iconColorName + "_s.gif");
+            }
+        }
+
+        function PlotVehicles(doc) {
+
+        	if(doc == "")
+        		return;
+            this.trafficDataXml = xmlParse(doc);
+
+            var sim = this.trafficDataXml.documentElement.getElementsByTagName("sim_execution");
+
+            if (sim.length > 0) {
+                $("#hidden_sim_duration").val(sim[0].getAttribute("duration"));
+                var isSimRunning = (sim[0].getAttribute("running") === "true");
+				if(isCurrentSimulation) {
+
+					if(isSimRunning || isRunning)
+						$("#btnHideShowButton").button("option", "label", "Time: " + sim[0].getAttribute("duration"));
+				}
+				isRunning = isSimRunning;
+
+            }
+
+            /*Vehicles*/
+            var vehicles = this.trafficDataXml.documentElement.getElementsByTagName("vehicle");
+
+            for (var i = 0; i < vehicles.length; i++) {
+                // obtain the attribues of each marker
+                var vehId = vehicles[i].getAttribute("id");
+                var vehLat = parseFloat(vehicles[i].getAttribute("lat"));
+                var vehLng = parseFloat(vehicles[i].getAttribute("lng"));
+                var vehLoc = new google.maps.LatLng(vehLat, vehLng);
+                var type = vehicles[i].getAttribute("type");
+                var icon = "/static/Images/car.png";
+
+                switch (type) {
+                case "Bus":
+                    icon = "/static/Images/bus.png";
+                    break;
+                case "Truck":
+                    icon = "/static/Images/truck.png";
+                    break;
+                }
+                // create the vehicles on map
+                this.createVehicleMarker(vehId, vehLoc, "", icon);
+            }
+
+            tempArray = [];
+            $.extend(tempArray, this.vehiclesArray);
+
+            for (var id in tempArray) {
+                if (tempArray[id][2] != this.counter) {
+                    this.vehiclesArray[id][0].setMap(null);
+                    delete this.vehiclesArray[id];
+                }
+            }
+            this.counter++;
+
+        }
+
+        function updateIntersection(intersectionType) {
+			if(intersectionType == "TRAFFIC_SIGNAL") {
+
+        		tempArray = [];
+            	$.extend(tempArray, this.stopSignArray);
+				for (var id in tempArray) {
+					this.stopSignArray[id][0].setMap(null);
+				    delete this.stopSignArray[id];
+				}
+				downloadUrl("/static/Data/" + dataFolder + "/TrafficSignalData.xml?r=" + Math.random(), plotSignals);
+            }
+			else if(intersectionType == "STOP_SIGN") {
+				tempArray = [];
+            	$.extend(tempArray, this.trafficSignalArray);
+				for (var id in tempArray) {
+					this.trafficSignalArray[id].setMap(null);
+				    delete this.trafficSignalArray[id];
+				}
+				downloadUrl("/static/Data/" + dataFolder + "/StopSignData.xml?r=" + Math.random(), plotStopSigns);
+			} else {
+				tempArray = [];
+				$.extend(tempArray, this.stopSignArray);
+				for (var id in tempArray) {
+					this.stopSignArray[id][0].setMap(null);
+					delete this.stopSignArray[id];
+				}
+				tempArray = [];
+				$.extend(tempArray, this.trafficSignalArray);
+				for (var id in tempArray) {
+					this.trafficSignalArray[id].setMap(null);
+					delete this.trafficSignalArray[id];
+				}
+
+			}
+
+		}
+
+		function plotSignals(doc) {
+
+            /*Traffic Lights*/
+            this.trafficSignalDataXml = xmlParse(doc);
+			var trafficLights = this.trafficSignalDataXml.documentElement.getElementsByTagName("trafficlight");
+            var containingClass = this;
+            $.each(trafficLights, function (i, trafficLight) {
+                var trafficLightId = trafficLights[i].getAttribute("id");
+                var imageId = trafficLights[i].getAttribute("img_id");
+                var intersectionId = trafficLights[i].getAttribute("intersection_id");
+                var trafficLightName = trafficLights[i].getAttribute("name");
+                var intersectionTitleName = trafficLights[i].getAttribute("intersection_desc");
+                // In group mode, show only the associated intersection
+                // In collaboration mode, show the rest of the intersections but disable clicking
+
+                if (mode != "COLAB") {
+                  if ($("#hdnAssociatedJunctions").val().indexOf(intersectionId) == -1)
+                    return true;
+                }
+                var trafficLightState = trafficLights[i].getAttribute("state");
+                var trafficLightLinkIndex = trafficLights[i].getAttribute("link_index");
+                var trafficLightLat = parseFloat(trafficLights[i].getAttribute("lat"));
+                var trafficLightLng = parseFloat(trafficLights[i].getAttribute("lng"));
+                var trafficLightLoc = new google.maps.LatLng(trafficLightLat, trafficLightLng);
+
+                containingClass.createTrafficSignal(trafficLightId, imageId, trafficLightLinkIndex, trafficLightLoc,
+                    trafficLightName, intersectionId, trafficLightState, dataFolder, intersectionTitleName);
+            });
+
+        }
+
+        function plotStopSigns(doc) {
+        	data = xmlParse(doc);
+
+            var stopSigns = data.documentElement.getElementsByTagName("stopsign");
+        	var containingClass = this;
+			$.each(stopSigns, function (i, stopSign) {
+				var stopSignId = "stopsign-" + stopSigns[i].getAttribute("id");
+				var intersectionId = stopSigns[i].getAttribute("intersection_id");
+				// In group mode, show only the associated intersection
+				// In collaboration mode, show the rest of the intersections but disable clicking
+
+				if (mode != "COLAB") {
+				  if ($("#hdnAssociatedJunctions").val().indexOf(intersectionId) == -1)
+					return true;
+				}
+				var lat = parseFloat(stopSigns[i].getAttribute("lat"));
+				var lng = parseFloat(stopSigns[i].getAttribute("lng"));
+				var loc = new google.maps.LatLng(lat, lng);
+				var icon = "/static/Images/stop.png";
+
+				containingClass.createStopSign(stopSignId, loc, "", icon);
+            });
+        }
+
+
+        function PlotPoints() {
+
+            try {
+                downloadUrl("/static/Data/" + dataFolder + "/TrafficData.xml?r=" + Math.random(), PlotVehicles);
+
+                if(intersectionType == "TRAFFIC_SIGNAL")
+
+            		downloadUrl("/static/Data/" + dataFolder + "/TrafficSignalData.xml?r=" + Math.random(), plotSignals);
+
+
+
+				// Reload status of groups
+				//$('#groupCollaborationStatus').setGridParam({ page: 1, datatype: "json" }).trigger('reloadGrid');
+
+                if (isRunning)
+                    setTimeout("PlotPoints()", 500);
+                else
+                    setTimeout("PlotPoints()", 2000);
+            } catch (err) {
+                alert(err.description);
+            }
+        }
+
+        function ReloadGroupStatus()
+        {
+          try {
+            // Reload status of groups
+            $('#groupCollaborationStatus').setGridParam({ page: 1, datatype: "json" }).trigger('reloadGrid');
+
+            setTimeout("ReloadGroupStatus()", 8000);
+          }
+          catch (err) {
+            alert(err.description);
+          }
+        }
+
+         // Create the Google Map to be used.
+        function loadMap() {
+
+            var postdata = {};
+
+            jsonData = $.ajax({
+                url: "/getGroupData",
+                dataType: "json",
+                async: false,
+                data: postdata
+            }).responseText;
+
+            try {
+                data = jQuery.parseJSON(jsonData);
+            } catch (e) {
+                $('body').html(jsonData);
+            }
+
+            var lat, lng;
+
+            if (data['response']['status'] == "failure")
+                $.notify("Unauthorized Access", "error");
+            else {
+                var siminfo = data['response']['siminfo'];
+                this.activeUserInfo = data['response'];
+
+                lat = siminfo['latitude'];
+                lng = siminfo['longitude'];
+                junctions = siminfo['junctions'];
+                non_assoc_junctions = siminfo['assoc_junctions'];
+                mode = siminfo['mode'];
+                $("#hdnAssociatedJunctions").val(junctions);
+                $("#hdnNonAssociatedJunctions").val(non_assoc_junctions);
+
+                $('#' + 'user_mode_' + mode).prop('checked', true);
+                loadedSimulationId = data['response']['sim_id'];
+                $("#logged_user").text("User: " + data['response']['firstname'] + " " + data['response']['lastname']);
+                $("#group_name").text("Group: " + data['response']['groupname']);
+                if (data['response']['sim_folder'] != 'NONE')
+                    dataFolder = data['response']['sim_folder'];
+                else
+                    dataFolder = "";
+                actualProblemID = data['response']['problem_id'];
+				$("#btnProblemID").button("option", "label", "P" + actualProblemID);
+
+				intersectionType = data['response']['problem_type'];
+            }
+
+
+            var mapOptions = {
+                center: new google.maps.LatLng(lat, lng),
+                mapTypeId: google.maps.MapTypeId.SATELLITE,
+                zoom: 20,
+                mapTypeControl: true,
+                mapTypeControlOptions: {
+                    style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                    position: google.maps.ControlPosition.TOP_RIGHT
+                },
+                panControl: true,
+                panControlOptions: {
+                    position: google.maps.ControlPosition.RIGHT_TOP
+                },
+                zoomControl: true,
+                zoomControlOptions: {
+                    style: google.maps.ZoomControlStyle.LARGE,
+                    position: google.maps.ControlPosition.RIGHT_TOP
+                },
+                scaleControl: true,
+                scaleControlOptions: {
+                    position: google.maps.ControlPosition.RIGHT_BOTTOM
+                },
+                streetViewControl: true,
+                streetViewControlOptions: {
+                    position: google.maps.ControlPosition.RIGHT_TOP
+                }
+            };
+            this.map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+            // create the speed signs on map
+            //$("#hdnSpeedSignId").val("speedsign_0");
+
+            //this.createMarker("speedsign_0", new google.maps.LatLng(36.138915, -86.812), document.getElementById("infoWindowCustom"), "./Images/speed_40.png");
+
+            google.maps.event.addListener(this.map, "rightclick", function (event) {
+                var lat = event.latLng.lat();
+                var lng = event.latLng.lng();
+                alert("lat=\"" + lat + "\" lng=\"" + lng + "\"")
+            });
+
+			// update here with intersection type
+			updateIntersection(intersectionType);
+
+            downloadUrl("/static/Data/DetectorData.xml?r=" + Math.random(), function (doc) {
+                this.DetectorDataXml = xmlParse(doc);
+                /*Induction Loop Sensors*/
+                var detectors = this.DetectorDataXml.documentElement.getElementsByTagName("detector");
+                $.each(detectors, function (i, detector) {
+                    var detectorId = detectors[i].getAttribute("id");
+                    var idparts = detectorId.split("!");
+                    var intersectionId = idparts[1];
+                    if (mode != "COLAB") {
+                      if ($("#hdnAssociatedJunctions").val().indexOf(intersectionId) == -1)
+                        return true;
+                    }
+                    var detectorLat = parseFloat(detectors[i].getAttribute("lat"));
+                    var detectorLng = parseFloat(detectors[i].getAttribute("lng"));
+                    var type = detectors[i].getAttribute("type");
+                    var detectorLoc = new google.maps.LatLng(detectorLat, detectorLng);
+
+
+                    var iconImage;
+                    switch (idparts[0]) {
+                    case "east_lane_in":
+                    case "west_lane_out":
+                        iconImage = "https://www.google.com/mapfiles/west.png"
+                        break;
+
+                    case "west_lane_in":
+                    case "east_lane_out":
+                        iconImage = "https://www.google.com/mapfiles/east.png"
+                        break;
+
+                    case "south_lane_in":
+                    case "north_lane_out":
+                        iconImage = "https://www.google.com/mapfiles/north.png"
+                        break;
+
+                    default:
+                        iconImage = "https://www.google.com/mapfiles/south.png"
+                    }
+
+                    var marker = new google.maps.Marker({
+                        position: detectorLoc,
+                        map: map,
+                        zIndex: Math.round(detectorLoc.lat() * -100000) << 5,
+                        icon: iconImage,
+                        title: idparts[0]
+                    });
+
+                    marker.type = type;
+                    google.maps.event.addListener(marker, 'click', function (event) {
+                        $("#inductionLoopDialog").dialog('option', 'title', marker.title);
+                        drawInductionLoopWindow(detectorId, marker.type);
+                        $("#inductionLoopDialog").dialog("open");
+                    });
+
+                    if (idparts[2] != "no-id") {
+                      if ($("#hdnAssociatedJunctions").val().indexOf(intersectionId) != -1) {
+                        google.maps.event.addListener(marker, 'rightclick', function (event) {
+                          $("#defineTurnProbability").load('/static/TurnProbability.html', function () {
+                            $("#defineTurnProbability").dialog('option', 'title', idparts[0]);
+                            $("#txt_edge_id").val(idparts[2]);
+                            $("#getTurnProbabilityForm").submit();
+                            $("#defineTurnProbability").dialog("open");
+                          });
+                        });
+                      }
+                    }
+
+                });
+            });
+
+
+          /*
+            RealAllFlows
+          */
+            loadAllFlowPoints();
+
+          /*
+            downloadUrl("/static/Data/FlowData.xml?r=" + Math.random(), function (doc) {
+                this.flowDataXml = xmlParse(doc);
+
+                var flows = this.flowDataXml.documentElement.getElementsByTagName("flow");
+
+                $.each(flows, function (i, flow) {
+                    var flowId = flows[i].getAttribute("id");
+                    var name = flows[i].getAttribute("name");
+                    var flowLat = parseFloat(flows[i].getAttribute("lat"));
+                    var flowLng = parseFloat(flows[i].getAttribute("lng"));
+                    var edgeId = flows[i].getAttribute("edge_id");
+                    var flowLoc = new google.maps.LatLng(flowLat, flowLng);
+
+                    var marker = new google.maps.Marker({
+                        position: flowLoc,
+                        map: map,
+                        zIndex: Math.round(flowLoc.lat() * -100000) << 5,
+                        icon: "https://maps.google.com/mapfiles/marker" + flowId.substring(flowId.length - 1, flowId.length) + ".png",
+                        title: name
+                    });
+
+                    google.maps.event.addListener(marker, 'click', function (event) {
+                        $("#defineFlow").load('/static/Flows.html', function () {
+                            $("#defineFlow").dialog('option', 'title', name);
+                            $("#txt_edge_id").val(edgeId);
+                            $("#getFlowForm").submit();
+                            $("#defineFlow").dialog("open");
+                        });
+                    });
+
+          });
+        });*/
+
+		    // Collaboration Mode
+        loadGroupsStatus();
+
+        PlotPoints();
+
+        // Timer for Reload grid
+        ReloadGroupStatus();
+      }
+
+        function handleresponse(data) {
+            if (typeof data == 'object') {
+
+                if (data['response'] == "failure")
+                    $.notify("Unauthorized Access", "error");
+                else
+                	$.notify("Operation performed", "info");
+
+            } else
+                $('body').html(data);
+        }
+
+        var spinner = new Spinner();
+
+        function handlestartresponse(data) {
+            if (typeof data == 'object') {
+
+                if (data['response'] == "failure")
+                    $.notify("Unauthorized Access", "error");
+                else if (data['response'] == "notavailable")
+                	$.notify("Simulation platform not available, please wait for some time or stop an existing simulation..", "warn");
+                else {
+                    dataFolder = data['response'];
+                    $('#startSim').notify('Starting Simulation ...', 'info', { position:"center" });
+                    $('#progressbar').after(spinner.spin().el);
+                    checkStartStatus();
+                }
+
+            } else
+                $('body').html(data);
+        }
+
+		function checkStartStatus() {
+			var jsonData;
+			var postdata = {};
+            var responseData = $.ajax({
+                url: "/checkStartStatus",
+                dataType: "json",
+                async: false,
+                data: postdata
+            }).responseText;
+
+            try {
+                jsonData = jQuery.parseJSON(responseData);
+            	} catch (e) {
+            	spinner.spin(false);
+            	$('#startSim').notify("Something went wrong!", "error");
+                return;
+            }
+            if (jsonData['response'] == 'NOT_RUNNING') {
+                spinner.spin(false);
+            	$('#startSim').notify("Simulation did not start!", "error");
+            	return;
+            } else if (jsonData['response'] == 'CONFIGURED') {
+            	if (!isConfigured) {
+            		$('#startSim').notify("Simulation Configured", "info");
+            		isConfigured = true;
+            	}
+
+            } else if (jsonData['response'] == 'RUNNING') {
+            	spinner.spin(false);
+            	$('#startSim').notify("Simulation started", "success");
+            	isConfigured = false;
+            	return;
+            }
+			setTimeout("checkStartStatus()", 1000);
+        }
+
+
+
+        function handlesetmoderesponse(data) {
+            if (typeof data == 'object') {
+
+                if (data['response'] == "failure")
+                    $.notify("Unauthorized Access", "error");
+                else if (data['response'] != "notavailable") {
+                    dataFolder = data['response']['sim_folder'];
+                    loadedSimulationId = data['response']['sim_id'];
+                    location.reload();
+                }
+            } else
+                $('body').html(data);
+        }
+
+        function drawChart() {
+			/*
+            if (isCurrentSimulation && ($("#hidden_sim_duration").val() <= 0)) {
+                $("#vehicleChart").text("Please run the simulation first.");
+                return;
+            }*/
+
+            var postdata = {
+                sim_id: loadedSimulationId
+            };
+            var jsonData;
+
+            var responseData = $.ajax({
+                url: "/getVehicleResult",
+                dataType: "json",
+                async: false,
+                data: postdata
+            }).responseText;
+
+            try {
+                jsonData = jQuery.parseJSON(responseData);
+            } catch (e) {
+                $('body').html(responseData);
+                return;
+            }
+            if (jsonData['response']['status'] == 'notloaded') {
+                $("#vehicleChart").text("Please wait till simulation completes and results are loaded.");
+            } else if (jsonData['response']['status'] == 'nosimexec') {
+                $("#vehicleChart").text("Please run the simulation first.");
+            } else {
+                $("#simulationResultDialog").dialog('option', 'title', "Simulation Result: Duration=" + jsonData['response']['steps'] + " s");
+                var data = new google.visualization.DataTable(jsonData['response']['resultdata']);
+                var table = new google.visualization.Table(document.getElementById('vehicleChart'));
+                table.draw(data, {
+                    showRowNumber: true
+                });
+            }
+        }
+
+        function drawInductionLoopWindow(id, type) {
+            $("#hdnInductionId").val(id);
+            $("#hdnInductionType").val(type);
+            $("#selectInductionChart").children("option[value='queue']").remove();
+            if (type == "in") {
+                $("#selectInductionChart").append('<option value="queue">Queue Chart</option>');
+            }
+            $("#selectInductionChart").children("option[value='data_table']").prop('selected', true);
+            drawInductionLoopChart();
+
+
+
+        }
+
+
+        function drawInductionLoopChart() {
+
+            var postdata = {
+                sim_id: loadedSimulationId,
+                loop_id: $("#hdnInductionId").val()
+            };
+            var jsonData;
+
+            if ($("#selectInductionChart").val() == "data_table") {
+
+                $("#inductionLoopChart").hide();
+                $("#queueChart").hide();
+
+
+                var responseData = $.ajax({
+                    url: "/getInductionDataTable",
+                    dataType: "json",
+                    async: false,
+                    data: postdata
+                }).responseText;
+                try {
+                    jsonData = jQuery.parseJSON(responseData);
+                } catch (e) {
+                    $('body').html(jsonData);
+                    return;
+                }
+
+                if (jsonData['response']['status'] == 'notloaded') {
+                    $("#vehicleChart").text("Please wait till simulation completes and results are loaded.");
+                } else if (jsonData['response']['status'] == 'nosimexec') {
+                    $("#vehicleChart").text("Please run the simulation first.");
+                } else {
+
+                    var data = new google.visualization.DataTable(jsonData['response']['resultdata']);
+                    var table = new google.visualization.Table(document.getElementById('inductionDataTable'));
+                    table.draw(data, {
+                        showRowNumber: false
+                    });
+                }
+
+
+
+                $("#inductionDataTable").show();
+
+            } else if ($("#selectInductionChart").val() == "queue") {
+
+
+
+                var responseData = $.ajax({
+                    url: "/getQueueResult",
+                    dataType: "json",
+                    async: false,
+                    data: postdata
+                }).responseText;
+
+                try {
+                    jsonData = jQuery.parseJSON(responseData);
+                } catch (e) {
+                    $('body').html(jsonData);
+                    return;
+                }
+
+                if (jsonData['response']['status'] == 'notloaded') {
+                    $("#vehicleChart").text("Please wait till simulation completes and results are loaded.");
+                } else if (jsonData['response']['status'] == 'nosimexec') {
+                    $("#vehicleChart").text("Please run the simulation first.");
+                } else {
+
+                    var data = new google.visualization.DataTable(jsonData['response']['resultdata']['chart_data']);
+
+                    var options = {
+                        legend: 'none',
+                        titleX: 'Time in secs since Simulation Start',
+                        titleY: 'Queue length in feet',
+						'width':1000,
+                     	'height':500,
+                        pointSize: 1,
+                        interpolateNulls: true,
+                        hAxis: {
+                            minValue: 0,
+                            maxValue: jsonData['response']['resultdata']['steps']
+                        }
+                    };
+
+                    var chart = new google.visualization.LineChart(document.getElementById('queueChart'));
+                    chart.draw(data, options);
+                }
+
+
+
+                $("#inductionDataTable").hide();
+                $("#inductionLoopChart").hide();
+                $("#queueChart").show();
+
+            } else {
+            	var flow_rate_agg = 50;
+            	if ($("#selectInductionChart").val() == 'flow_rate_10')
+            		flow_rate_agg = 10;
+            	postdata = {
+			                sim_id: loadedSimulationId,
+			                loop_id: $("#hdnInductionId").val(),
+			                flow_rate_agg :flow_rate_agg
+            	};
+
+                var responseData = $.ajax({
+                    url: "/getInductinLoopResult",
+                    dataType: "json",
+                    async: false,
+                    data: postdata
+                }).responseText;
+                try {
+                    jsonData = jQuery.parseJSON(responseData);
+                } catch (e) {
+                    $('body').html(jsonData);
+                    return;
+                }
+
+                if (jsonData['response']['status'] == 'notloaded') {
+                    $("#vehicleChart").text("Please wait till simulation completes and results are loaded.");
+                } else if (jsonData['response']['status'] == 'nosimexec') {
+                    $("#vehicleChart").text("Please run the simulation first.");
+                } else {
+
+                    var data = new google.visualization.DataTable(jsonData['response']['resultdata']['chart_data']);
+                    title_y = 'Number of Vehicles aggregated at ' + flow_rate_agg + ' secs';
+
+                    var options = {
+                        titleX: 'Time in secs since Simulation Start',
+                        titleY: title_y,
+						'width':1000,
+                     	'height':500,
+                        pointSize: 1,
+                        interpolateNulls: true,
+                        hAxis: {
+                            minValue: 0,
+                            maxValue: jsonData['response']['resultdata']['steps']
+                        }
+
+                    };
+
+                    var chart = new google.visualization.LineChart(document.getElementById('inductionLoopChart'));
+                    chart.draw(data, options);
+
+                }
+
+                $("#queueChart").hide();
+                $("#inductionDataTable").hide();
+                $("#inductionLoopChart").show();
+            }
+
+
+
+        }
+
+        function loadAllFlowPoints() {
+          var postdata = {};
+          var containingClass = this;
+
+          // Delete all points first
+          for (var id in this.flowPointsArray) {
+            this.flowPointsArray[id][0].setMap(null);
+            delete this.flowPointsArray[id];
+          }
+
+          jsonData = $.ajax({
+            url: "/readAllFlows",
+            dataType: "json",
+            async: false,
+            data: postdata
+          }).responseText;
+
+
+          try {
+            data = jQuery.parseJSON(jsonData);
+          } catch (e) {
+            $('body').html(jsonData);
+          }
+
+          if (data['response']['status'] == "failure") {
+            $.notify("Unauthorized Access", "error");
+          }
+          else {
+            var flows = data['response']['flows'];
+            $.each(flows, function (i, flow) {
+              var flow_id = flow["id"];
+              var simulation_id = flow["simulation_id"];
+              var point_name = flow["point_name"];
+              var intersection_id = flow["intersection_id"];
+              var flow_latitude = parseFloat(flow["latitude"]);
+              var flow_longitude = parseFloat(flow["longitude"]);
+              var flow_rate = flow["flow_rate"];
+              var flow_location = new google.maps.LatLng(flow_latitude, flow_longitude);
+              var icn = "https://maps.google.com/mapfiles/marker" + point_name.substring(0, 1) + ".png";
+
+              containingClass.createFlowPoints(flow_id, flow_location, "", icn, point_name, intersection_id);
+
+              /*var marker = new google.maps.Marker({
+                position: flow_location,
+                map: map,
+                zIndex: Math.round(flow_location.lat() * -100000) << 5,
+                icon: "https://maps.google.com/mapfiles/marker" + point_name.substring(0, 1) + ".png",
+                title: point_name
+              });
+
+              google.maps.event.addListener(marker, 'click', function (event) {
+                $("#defineFlow").load('/static/Flows.html', function () {
+                  $("#defineFlow").dialog('option', 'title', "Point " + point_name.substring(0, 1));
+                  $("#txt_point_name").val(point_name);
+                  $("#getFlowForm").submit();
+                  // In collaboration mode disable update button of others intersections
+                  if ($("#hdnAssociatedJunctions").val().indexOf(intersection_id) == -1) {
+                    $("#defineFlow_UpdateButton").hide(); //.prop('disabled', true);
+                  }
+                  $("#defineFlow").dialog("open");
+                });
+              });*/
+            });
+          }
+        }
+
+	function grpStatusImageFormatter(cellvalue, options, rowObject)
+	{
+	  var html = "<img src=\"Images/"+cellvalue+"-icon.png\">";
+	  return html;
+	}
+
+	function grpNameFormatter(cellvalue, options, rowObject)
+	{
+	  var linkHref = rowObject[3] + "&host_name=" + $(location).attr('hostname') + "&user_name=" + window.activeUserInfo['username'] + "&problem_id=" + window.activeUserInfo['siminfo']['problem_id'];
+	  var html = "<a href=\"javascript:void(0)\" onclick=\"window.open('"+linkHref+"', '_blank')\">"+cellvalue+"</a>";
+	  return html;
+	}
+
+	function loadGroupsStatus() {
+		jQuery("#groupCollaborationStatus").jqGrid({
+			url: '/getGroupStatusAll',
+			datatype: "json",
+			width: 175,
+			height: 300,
+			colNames: ['ID', 'Group Status', 'Group Name', 'coll_url'],
+			colModel: [
+			  { name: 'id', index: 'id', sortable: false, editable: false, editoptions:{readonly:true}, hidden:true},
+			  { name: 'grp_status', index: 'grp_status', width: 70, formatter:grpStatusImageFormatter, sortable: false, editable: false, editoptions:{readonly:true}, hidden:false},
+			  { name: 'group_name', index: 'group_name', width: 150, formatter:grpNameFormatter, sortable: true, editable: false, editoptions:{readonly:true}, hidden:false},
+			  { name: 'coll_url', index: 'coll_url', sortable: false, editable: false, editoptions:{readonly:true}, hidden:true}
+			],
+			multiselect: false,
+			viewrecords: true,
+			pager: '#lightNavBar',
+			caption: "Collaboration",
+			loadui: 'disable',
+			sortname: 'group_name',
+			sortorder: 'asc',
+			rowNum: 125,
+			jsonReader: {
+				root: 'groups',
+				id: "id",
+				page:  function(obj) { return 1; },
+				total: function(obj) { return 1; },
+				records: function(obj) {return obj.groups.length; }
+			},
+		});
+
+		$('.ui-jqgrid-hdiv').hide();
+		$(".ui-jqgrid-titlebar").hide();
+	}
+
+        $(function () {
+            var icons = {
+                header: "ui-icon-circle-arrow-e",
+                activeHeader: "ui-icon-circle-arrow-s"
+            };
+            $("#Accordion").accordion({
+                icons: icons,
+                collapsible: true
+            });
+
+        document.oncontextmenu = function () { return false; };
+
+            $("input[type=submit], button")
+                .button()
+
+            $("#btnHideShowButton").button({
+                icons: {
+                    primary: "ui-icon-scissors"
+                }
+            });
+
+            $("#btnHideShowButton").click(function () {
+                $("#LeftMenuBottomPanel").fadeToggle("slow");
+            });
+
+
+            $("#startSim").click(function () {
+            	if (isCurrentSimulation) {
+				        var resp = {};
+						$.post('/startSimulation', resp, function (data) {
+						     handlestartresponse(data);
+               	 		});
+    			}
+
+                return false;
+            });
+
+
+            $("#speedupSim").click(function () {
+            	if (isCurrentSimulation) {
+				        var resp = {};
+						$.post('/speedupSimulation', resp, function (data) {
+						     handleresponse(data);
+               	 		});
+    			}
+                return false;
+            });
+
+
+            $("#finishSim").click(function () {
+            	if (isCurrentSimulation) {
+				        var resp = {};
+						$.post('/finishSimulation', resp, function (data) {
+						     handleresponse(data);
+               	 		});
+    			}
+                return false;
+            });
+
+            $("#restoreSim").click(function () {
+             	if (isCurrentSimulation) {
+				        var resp = {};
+						$.post('/restoreSimulationRate', resp, function (data) {
+						     handleresponse(data);
+               	 		});
+    			}
+                return false;
+            });
+
+            $("#setmode_content input[name='user_mode']").click(function () {
+
+                var postdata = {
+                    user_mode: $('input:radio[name=user_mode]:checked').val()
+                };
+                $.post('/setMode', postdata, function (data) {
+                    handlesetmoderesponse(data);
+                });
+            });
+
+            $("#viewResult").click(function () {
+                drawChart();
+                $("#simulationResultDialog").dialog("open");
+            });
+
+            $("#viewSimulations").click(function () {
+            	$("#defineSimulations").load('/static/SimVersions.html', function () {
+				                    $("#defineSimulations").dialog("open");
+                });
+            });
+
+            $("#defineSimulations").dialog({
+			                autoOpen: false,
+			                height: 'auto',
+			                width: 'auto',
+			                autoResize: true,
+			                title: 'Simulation History',
+			                resizable: false,
+			                show: {
+			                    effect: "blind",
+			                    duration: 1000
+			                },
+			                hide: {
+			                    effect: "explode",
+			                    duration: 1000
+			                },
+			                buttons: {}
+            });
+
+
+            $("#inductionLoopDialog").dialog({
+                autoOpen: false,
+                height: 'auto',
+                width: 'auto',
+                autoResize: true,
+                resizable: false,
+                show: {
+                    effect: "blind",
+                    duration: 1000
+                },
+                hide: {
+                    effect: "explode",
+                    duration: 1000
+                },
+                buttons: {
+                    Ok: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+            $("#simulationResultDialog").dialog({
+                autoOpen: false,
+                height: 'auto',
+                width: 'auto',
+                autoResize: true,
+                resizable: false,
+                show: {
+                    effect: "blind",
+                    duration: 1000
+                },
+                hide: {
+                    effect: "explode",
+                    duration: 1000
+                },
+                buttons: {
+                    Ok: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+
+
+
+            $("#opener").click(function () {
+                $("#inductionLoopDialog").dialog("open");
+            });
+
+            $("#defineVehicles").dialog({
+                autoOpen: false,
+                height: 'auto',
+                width: 'auto',
+                autoResize: true,
+                title: 'Define Vehicles',
+                resizable: false,
+                show: {
+                    effect: "blind",
+                    duration: 1000
+                },
+                hide: {
+                    effect: "explode",
+                    duration: 1000
+                },
+                buttons: {}
+            });
+
+            $("#defineVehiclesTrigger").click(function () {
+                $("#defineVehicles").load('/static/Vehicles.html', function () {
+                    $("#defineVehicles").dialog("open");
+                });
+            });
+
+            $("#defineTurnProbability").dialog({
+                autoOpen: false,
+                height: 'auto',
+                width: 450,
+                autoResize: true,
+                title: 'Define Turn Probability',
+                resizable: false,
+                show: {
+                    effect: "blind",
+                    duration: 1000
+                },
+                hide: {
+                    effect: "explode",
+                    duration: 1000
+                },
+                buttons: {
+                	"Update": function () {
+                        $("#turnProbabilityForm").submit();
+                    },
+                    Cancel: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+            $("#turnProbabilityMessage").dialog({
+                autoOpen: false,
+                height: 'auto',
+                width: 'auto',
+                autoResize: true,
+                title: 'Turning Probability',
+                resizable: false,
+                modal: true,
+                buttons: {
+                    Ok: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+            $("#defineTurnProbabilityTrigger").click(function () {
+                $("#turnProbabilityMessage").dialog("open");
+            });
+
+            $("#defineTrafficLight").dialog({
+                autoOpen: false,
+                height: 'auto',
+                width: 'auto',
+                autoResize: true,
+                resizable: false,
+                show: {
+                    effect: "blind",
+                    duration: 1000
+                },
+                hide: {
+                    effect: "explode",
+                    duration: 1000
+                },
+                buttons: {
+
+                }
+            });
+
+            $("#trafficLightMessage").dialog({
+                autoOpen: false,
+                height: 'auto',
+                width: 'auto',
+                autoResize: true,
+                title: 'Traffic Light',
+                resizable: false,
+                modal: true,
+                buttons: {
+                    Ok: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+            $("#defineTrafficLightTrigger").click(function () {
+                $("#trafficLightMessage").dialog("open");
+            });
+
+            $("#defineFlow").dialog({
+                autoOpen: false,
+                height: 'auto',
+                width: 350,
+                autoResize: true,
+                resizable: false,
+                show: {
+                    effect: "blind",
+                    duration: 1000
+                },
+                hide: {
+                    effect: "explode",
+                    duration: 1000
+                },
+                buttons: {
+                	"defineFlow_UpdateButton" : {
+                		id: "defineFlow_UpdateButton",
+				    	text: "Update",
+            			click: function() {
+                        $("#flowForm").submit();
+						/*var isUpdated = $("#txt_flow_rate_updated").val();
+						if (isUpdated == "1"){
+							var flowDialog = $(this);
+							setTimeout(function() {
+							   flowDialog.dialog('close');
+							}, 2000);
+						}*/
+						}
+                    },
+                    Cancel: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+
+            $("#flowRateMessage").dialog({
+              autoOpen: false,
+              height: 'auto',
+              width: 'auto',
+              autoResize: true,
+              title: 'Vehicle Generation Rate',
+              resizable: false,
+              modal: true,
+              buttons: {
+                Ok: function () {
+                  $(this).dialog("close");
+                }
+              }
+            });
+
+            $("#flowRateMessageTrigger").click(function () {
+              $("#flowRateMessage").dialog("open");
+            });
+
+
+            /*
+            $("#defineFlowsTrigger1").click(function () {
+                $("#defineFlow").load('/static/Flows.html', function () {
+                    map.setCenter(new google.maps.LatLng(36.14255346852943, -86.81547224521637));
+                    $("#defineFlow").dialog('option', 'title', "31st Ave - West End");
+                    $("#txt_edge_id").val("19485812#0");
+                    $("#getFlowForm").submit();
+                    $("#defineFlow").dialog("open");
+                });
+            });
+
+            $("#defineFlowsTrigger2").click(function () {
+                $("#defineFlow").load('/static/Flows.html', function () {
+                    map.setCenter(new google.maps.LatLng(36.14304298829766, -86.81011319160461));
+                    $("#defineFlow").dialog('option', 'title', "Natchez Trace - 28th Ave");
+                    $("#txt_edge_id").val("19457616#2");
+                    $("#getFlowForm").submit();
+                    $("#defineFlow").dialog("open");
+                });
+            });
+
+            $("#defineFlowsTrigger3").click(function () {
+                $("#defineFlow").load('/static/Flows.html', function () {
+                    map.setCenter(new google.maps.LatLng(36.13508466424713, -86.81141138076782));
+                    $("#defineFlow").dialog('option', 'title', "Natchez Trace  - Fairfax Ave");
+                    $("#txt_edge_id").val("19457616#7");
+                    $("#getFlowForm").submit();
+                    $("#defineFlow").dialog("open");
+                });
+            });
+
+            $("#defineFlowsTrigger4").click(function () {
+                $("#defineFlow").load('/static/Flows.html', function () {
+                    map.setCenter(new google.maps.LatLng(36.13096872001422, -86.80603623390198));
+                    $("#defineFlow").dialog('option', 'title', "24th Ave - Blair Ave");
+                    $("#txt_edge_id").val("19479459#3");
+                    $("#getFlowForm").submit();
+                    $("#defineFlow").dialog("open");
+                });
+            });
+
+            $("#defineFlowsTrigger5").click(function () {
+                $("#defineFlow").load('/static/Flows.html', function () {
+                    map.setCenter(new google.maps.LatLng(36.14252314419553, -86.80477559566498));
+                    $("#defineFlow").dialog('option', 'title', "24th Ave - Highland Ave");
+                    $("#txt_edge_id").val("19479457#1");
+                    $("#getFlowForm").submit();
+                    $("#defineFlow").dialog("open");
+                });
+            });
+
+            $("#defineFlowsTrigger6").click(function () {
+                $("#defineFlow").load('/static/Flows.html', function () {
+                    map.setCenter(new google.maps.LatLng(36.13731368287647, -86.79816260933876));
+                    $("#defineFlow").dialog('option', 'title', "Wedgewood Ave - 19th Ave");
+                    $("#txt_edge_id").val("19479801#3");
+                    $("#getFlowForm").submit();
+                    $("#defineFlow").dialog("open");
+                });
+            });
+            */
+
+            $("#reasonForChange").dialog({
+              autoOpen: false,
+              height: 'auto',
+              width: 550,
+              autoResize: true,
+              title: 'Reason for changing values',
+              resizable: false,
+              show: {
+                effect: "blind",
+                duration: 1000
+              },
+              hide: {
+                effect: "explode",
+                duration: 1000
+              },
+              buttons: {
+                "Save": function () {
+                  $("#reasonForm").submit();
+                },
+                Cancel: function () {
+                  $(this).dialog("close");
+                }
+              }
+            });
+
+            $("#selectProblem").dialog({
+                autoOpen: false,
+                height: 'auto',
+                width: 550,
+                autoResize: true,
+                resizable: false,
+                show: {
+                    effect: "blind",
+                    duration: 1000
+                },
+                hide: {
+                    effect: "explode",
+                    duration: 1000
+                },
+                buttons: {
+                	"selectProblem_SetButton" : {
+					  id: "selectProblem_SetButton",
+					   text: "Set Problem",
+
+                    click: function () {
+
+                        $("#problemForm").submit();
+                        $(this).dialog("close");
+                        if (actualProblemID != nextProblemID) {
+						/*
+                          $("#reasonForChange").load('/static/Reason.html', function () {
+                            $("#reasonForChange").dialog("open");
+                            $("#reason_title").text("Reason for changing values in PROBLEM #" + actualProblemID);
+                          });
+						*/
+                          actualProblemID = nextProblemID;
+                          $("#btnProblemID").button("option", "label", actualProblemID);
+                        }
+
+                        loadAllFlowPoints();
+                    }
+                 },
+                    Cancel: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+
+            $("#selectMyProblem").click(function () {
+
+                $("#selectProblem").load('/static/Problems.html', function () {
+                	if(mode == "INDIVIDUAL") {
+						$("#sel_problem_id").children().remove();
+						$("#sel_problem_id").append('<option value="3">3</option>');
+						$("#sel_problem_id").append('<option value="6a">6(a)</option>');
+						$("#sel_problem_id").append('<option value="6b">6(b)</option>');
+						$("#sel_problem_id").append('<option value="6c">6(c)</option>');
+						$("#sel_problem_id").append('<option value="8">8</option>');
+					} else {
+						$("#sel_problem_id").children().remove();
+						$("#sel_problem_id").append('<option value="10a">10(a)</option>');
+						$("#sel_problem_id").append('<option value="10b">10(b)</option>');
+						$("#sel_problem_id").append('<option value="10c">10(c)</option>');
+                	}
+                    $("#selectProblem").dialog('option', 'title', "Set Problem (Parameters reset to default)");
+                    $("#sel_problem_id").val(actualProblemID);
+                    $("#getProblemForm").submit();
+                    $("#selectProblem").dialog("open");
+                });
+            });
+
+			$("#copySim").click(function () {
+
+				if (!isCurrentSimulation) {
+
+					tempSimulationId = loadedSimulationId;
+					$("#copyConfirmationDialog").dialog("open");
+				} else {
+					$.notify("Cannot copy current simulation.", "warn");
+				}
+    			return false;
+            });
+
+    		$("#copyConfirmationDialog").dialog({
+	                   autoOpen: false,
+	                   height: 'auto',
+	                   width: 350,
+	                   autoResize: true,
+	                   resizable: false,
+	                   show: {
+	                       effect: "blind",
+	                       duration: 5
+	                   },
+	                   hide: {
+	                       effect: "explode",
+	                       duration: 5
+	                   },
+	                   buttons: {
+	                       "Ok": function () {
+	                       	  		 var postdata = { sim_id: tempSimulationId };
+							           $.post('/copySimVersionToCurrent', postdata, function (data) {
+							             var isJSON = (typeof data == 'object');
+							             if (isJSON) {
+							               if (data['response'] === "failure") {
+							                 $.notify("Unauthorized Access", "error");
+							               }
+							               else if (data['response'] === "ALL_MODE_COPY_FAILURE") {
+							                 $.notify("Cannot copy simulation shared with all.", "error");
+							                 $(this).dialog("close");
+							                 return;
+							               }
+							               else
+							                 location.reload(true);
+
+							             }
+							             else {
+							               $('body').html(data);
+							             }
+        						});
+	                           $(this).dialog("close");
+
+	                       },
+	                       Cancel: function () {
+	                           $(this).dialog("close");
+	                       }
+	                   }
+    		});
+
+            $("#saveSim").click(function () {
+
+				if (isCurrentSimulation) {
+						$("#saveSimDiv").load('/static/SaveSimulation.html', function () {
+			                    $("#saveSimDiv").dialog('option', 'title', "Save current simulation");
+			                    $("#saveSimDiv").dialog("open");
+			                });
+    			}
+    			return false;
+            });
+
+             $("#saveSimDiv").dialog({
+			                autoOpen: false,
+			                height: 'auto',
+			                width: 350,
+			                autoResize: true,
+			                resizable: false,
+			                show: {
+			                    effect: "blind",
+			                    duration: 1000
+			                },
+			                hide: {
+			                    effect: "explode",
+			                    duration: 1000
+			                },
+			                buttons: {
+			                    "Save": function () {
+			                        $("#saveSimForm").submit();
+			                    },
+			                    Cancel: function () {
+			                        $(this).dialog("close");
+			                    }
+			                }
+            });
+
+            // Onload handler to fire off the app.
+            google.maps.event.addDomListener(window, 'load', loadMap);
+        });
+    </script>
+</head>
+
+<body>
+    <div id="map" style="width: 100%; height: 100%;">
+    </div>
+    <!--<div class="Toolbar">
+        <table border="0" cellpadding="0" cellspacing="0" style="width: 440px; height: 33px; margin-left: auto; margin-right: auto;" class="CommonTable">
+            <tr>
+                <td style="background-image: url(Images/MenuLeft.gif); width: 20px; background-repeat: no-repeat; height: 33px"></td>
+                <td style="width: 15px; background-repeat: no-repeat; height: 37px"></td>
+                <td style="cursor: pointer; width: 40px; height: 37px">
+                    <img src="Images/trafficlight.png" border="0" alt="Add Traffic Light" onclick="ChangeMapIcon(this.src)" />
+                </td>
+                <td style="cursor: pointer; width: 40px; height: 37px">
+                    <img src="Images/accesdenied.png" border="0" alt="Add Access Denied Sign" onclick="ChangeMapIcon(this.src)" />
+                </td>
+                <td style="cursor: pointer; width: 40px; height: 37px">
+                    <img src="Images/stop.png" border="0" alt="Add Stop Sign" onclick="ChangeMapIcon(this.src)" />
+                </td>
+                <td style="cursor: pointer; width: 40px; height: 37px">
+                    <img src="Images/speed_30.png" border="0" alt="Add Speed Limit (30)" onclick="ChangeMapIcon(this.src)" />
+                </td>
+                <td style="cursor: pointer; width: 40px; height: 37px">&nbsp;
+                </td>
+                <td style="cursor: pointer; width: 40px; height: 37px">&nbsp;
+                </td>
+                <td style="cursor: pointer; width: 40px; height: 37px">&nbsp;
+                </td>
+                <td style="cursor: pointer; width: 40px; height: 37px">&nbsp;
+                </td>
+                <td style="cursor: pointer; width: 40px; height: 37px">&nbsp;
+                </td>
+                <td style="cursor: pointer; width: 40px; height: 37px">&nbsp;
+                </td>
+                <td style="cursor: pointer; width: 40px; height: 37px">
+                    <img src="Images/add.png" border="0" alt="Add Sign to Map" onclick="addPoint()" />
+                </td>
+                <td style="width: 20px"></td>
+            </tr>
+        </table>
+    </div>-->
+    <div id="LeftMenuTopPanel" class="MenuPanel">
+        <button id="btnHideShowButton" class="HideShowButton">Time : 000000</button>
+        <button id="btnProblemID" class="ProblemIDButton"></button>
+    </div>
+    <div id="LeftMenuBottomPanel">
+        <div id="Accordion" class="AccordionMenu">
+      <h4>
+        1- Experiment Mode</h4>
+            <div>
+                <label id="logged_user">Text</label> <br/>
+                <label id="group_name">Text</label>
+                <div id="setmode_content">
+
+                    Set Mode:
+                    <br>
+                    <form class="user_mode">
+                        <input type="radio" name="user_mode" id="user_mode_INDIVIDUAL" value="INDIVIDUAL">Individual
+                        <br>
+                        <input type="radio" name="user_mode" id="user_mode_COLAB" value="COLAB">Collaboration
+                    </form>
+                </div>
+            </div>
+            <h4>
+        2- Problem Set</h4>
+            <div>
+                <p>
+                    <a id="selectMyProblem" href="#">Select Problem</a>
+                    <br/>
+                </p>
+            </div>
+            <h4>
+        3- Traffic Flow</h4>
+            <div>
+                <p>
+                    <a id="flowRateMessageTrigger" href="#">Define Vehicle Generation Rate</a>
+                </p>
+<!--                <p>
+
+                    <a id="defineFlowsTrigger1" href="#">Point A</a>
+                    <br/>
+                    <a id="defineFlowsTrigger2" href="#">Point B</a>
+                    <br/>
+                    <a id="defineFlowsTrigger3" href="#">Point C</a>
+                    <br/>
+                    <a id="defineFlowsTrigger4" href="#">Point D</a>
+                    <br/>
+                    <a id="defineFlowsTrigger5" href="#">Point E</a>
+                    <br/>
+                    <a id="defineFlowsTrigger6" href="#">Point F</a>
+                    <br/>
+                </p>-->
+            </div>
+            <h4>
+        4- Vehicles</h4>
+            <div>
+                <p>
+                    <a id="defineVehiclesTrigger" href="#">Define Vehicles</a>
+                </p>
+            </div>
+            <h4>
+        5- Turn Probability</h4>
+            <div>
+                <p>
+                    <a id="defineTurnProbabilityTrigger" href="#">Define Turn Probabilities</a>
+                </p>
+            </div>
+            <h4>
+        6- Traffic Lights</h4>
+            <div>
+                <p>
+                    <a id="defineTrafficLightTrigger" href="#">Traffic Light Logic Programming</a>
+                </p>
+            </div>
+      <!--<h4>
+        Traffic Signs</h4>
+      <div>
+        <p>
+          <img src="Images/trafficlight.png" border="0" alt="Add Traffic Light" onclick="ChangeMapIcon(this.src)" style="cursor: pointer;" />&nbsp;
+          <img src="Images/accesdenied.png" border="0" alt="Add Access Denied Sign" onclick="ChangeMapIcon(this.src)" style="cursor: pointer;" />&nbsp;
+          <img src="Images/stop.png" border="0" alt="Add Stop Sign" onclick="ChangeMapIcon(this.src)"  style="cursor: pointer;"/>&nbsp;
+          <img src="Images/speed_30.png" border="0" alt="Add Speed Limit (30)" onclick="ChangeMapIcon(this.src)"  style="cursor: pointer;"/><br /><br />
+          <img src="Images/speed_40.png" border="0" alt="Add Speed Limit (40)" onclick="ChangeMapIcon(this.src)"  style="cursor: pointer;"/>&nbsp;
+          <img src="Images/speed_50.png" border="0" alt="Add Speed Limit (50)" onclick="ChangeMapIcon(this.src)"  style="cursor: pointer;"/>&nbsp;
+          <img src="Images/speed_60.png" border="0" alt="Add Speed Limit (60)" onclick="ChangeMapIcon(this.src)"  style="cursor: pointer;"/>&nbsp;
+          <img src="Images/speed_70.png" border="0" alt="Add Speed Limit (70)" onclick="ChangeMapIcon(this.src)"  style="cursor: pointer;"/><br /><br />
+          <img src="Images/trafficcamera.png" border="0" alt="Add Speed Limit (70)" onclick="ChangeMapIcon(this.src)"  style="cursor: pointer;"/>
+        </p>
+      </div>-->
+            <h4>
+        7- Traffic Simulation</h4>
+        	<div>
+		        <p>
+			         <a id="startSim" href="#">Start</a> <br/>
+		             <a id="finishSim" href="#">Stop</a> <br/>
+                	<a id="speedupSim" href="#">Speedup Simulation</a><br/>
+                	<a id="restoreSim" href="#">Restore Sim Rate</a>
+                </p>
+                <p>
+					<a id="viewResult" href="#">Simulation Result</a>
+                </p>
+                <p>
+                	<a id="saveSim" href="#">Save Simulation</a>
+                	<a id="revertSim" href="/">Revert Simulation</a>
+                	<a id="copySim" href="#">Copy Simulation</a>
+                	<a id="viewSimulations" href="#">View Simulations</a>
+                </p>
+            </div>
+
+      <h4>
+        8- Collaboration</h4>
+      <div>
+		  <table id="groupCollaborationStatus">
+		  </table>
+      </div>
+      <h4>
+        9- Settings</h4>
+            <div>
+                <p>
+                    <form id="logout" action="/auth/logout" method="get">
+                        <input type="submit" value="Logout"/>
+                    </form>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="inductionLoopDialog" title="Induction Loop Sensor" style="text-align:center">
+        <form id="selectInductionChartForm">
+            <p>
+                <label for="selectInductionChart">Select:</label>
+                <select onChange="drawInductionLoopChart()" id="selectInductionChart">
+                    <option value="data_table" selected>Data</option>
+                    <option value="flow_rate_10">Flow Rate Chart (10 sec)</option>
+                    <option value="flow_rate_50">Flow Rate Chart (50 sec)</option>
+                    <option value="queue">Queue Chart</option>
+                </select>
+            </p>
+            <input id="hdnInductionId" type="hidden" />
+            <input id="hdnInductionType" type="hidden" />
+            <input id="hdnAssociatedJunctions" type="hidden" />
+            <input id="hdnNonAssociatedJunctions" type="hidden" />
+			<input type="hidden" id="hidden_sim_duration" value="-1">
+        </form>
+        <div id="inductionLoopChart"></div>
+        <div id="queueChart"></div>
+        <div id="inductionDataTable"></div>
+    </div>
+    <div id="simulationResultDialog" title="Simulation Result" style="text-align:center">
+        <div id="vehicleChart"></div>
+    </div>
+    <div id="turnProbabilityMessage">
+        <p>
+            <span class="ui-icon ui-icon-circle-check" style="float: left; margin: 0 7px 50px 0;"></span>
+            Please right click on each inbound arrows
+            <br />to modify the turning probability values.
+        </p>
+    </div>
+    <div id="trafficLightMessage">
+        <p>
+            <span class="ui-icon ui-icon-circle-check" style="float: left; margin: 0 7px 50px 0;"></span>
+            Please click on each traffic lights
+            <br />to add/modify/remove traffic light logic.
+        </p>
+    </div>
+      <div id="flowRateMessage">
+        <p>
+            <span class="ui-icon ui-icon-circle-check" style="float: left; margin: 0 7px 50px 0;"></span>
+            Please click on each point (e.g. A, B, C, etc.) on the map
+            <br />to modify the vehicle generation rate values.
+        </p>
+    </div>
+    <div id="progressbar"></div>
+    <div id="defineVehicles"></div>
+    <div id="defineSimulations"></div>
+    <div id="defineTurnProbability"></div>
+    <div id="defineTrafficLight" title="Traffic Light Logic Programming"></div>
+    <div id="defineFlow"></div>
+    <div id="saveSimDiv"></div>
+    <div id="selectProblem"></div>
+	<div id="reasonForChange"></div>
+	<div id="copyConfirmationDialog" title="Confirmation">Do you want to make this simulation current?</div>
+</body>
+
+</html>

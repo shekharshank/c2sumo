@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on Fri Feb 28 19:42:26 2014 by SUMO sumo Version 0.19.0
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo-sim.org/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="/opt/C3STEM/Map/westend.net_A.xml"/>
+        <route-files value="/opt/C3STEM/Map/westend.rou.xml"/>
+        <additional-files value="/opt/C3STEM/Map/westend.vtype.xml,/opt/C3STEM/Map/westend.tlLogic.xml,/opt/C3STEM/Map/westend.induction.xml"/>
+    </input>
+
+    <output>
+        <queue-output value="/opt/C3STEM/Middleware/static/Data/queue_out.xml"/>
+        <tripinfo-output value="/opt/C3STEM/Middleware/static/Data/tripinfo_out.xml"/>
+        <vehroute-output value="/opt/C3STEM/Middleware/static/Data/routeinfo_out.xml"/>
+        <save-state.prefix value="/opt/C3STEM/Map/state"/>
+    </output>
+
+    <time>
+        <begin value="0"/>
+        <end value="300"/>
+    </time>
+
+    <report>
+        <verbose value="true"/>
+    </report>
+
+    <traci_server>
+        <remote-port value="9999"/>
+    </traci_server>
+
+    <gui_only>
+        <gui-settings-file value="/opt/C3STEM/Map/gui-settings.cfg"/>
+        <start value="true"/>
+    </gui_only>
+
+</configuration>
+-->
+
+<tripinfos>
+</tripinfos>

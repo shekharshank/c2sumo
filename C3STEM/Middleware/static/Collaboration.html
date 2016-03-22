@@ -1,0 +1,82 @@
+﻿<script type="text/javascript">
+  jQuery(document).ready(function () {
+
+    $("#collaborationForm").submit(function () {
+      var postdata = { group_id: $("#sel_group_name").val()};
+
+	  jsonData = $.ajax({
+		url: "/getGroupUrl",
+		dataType: "json",
+		async: false,
+		data: postdata
+	  }).responseText;
+
+	  try {
+		data = jQuery.parseJSON(jsonData);
+
+		if (data['response']['status'] == "failure")
+		  alert("Unauthorized Access");
+		else {
+		  var groupinfo = data['response'];
+		  var collaboration_url = groupinfo['collaboration_url'];
+		  window.open(collaboration_url);
+		}
+	  }
+	  catch (e) {
+		alert(e);
+	  }
+	  return false;
+    });
+
+    $("#getProblemForm").submit(function () {
+      var postdata = { problem_id: $("#sel_problem_id").val() };
+      $.post('/readProblem', postdata, function (data) {
+
+        var isJSON = typeof data == 'object';
+        if (isJSON) {
+          if (data['response']['status'] == "failure")
+            alert("Unauthorized Access");
+          else {
+            var problem_title = data['response']['title'];
+            var problem_description = data['response']['description'];
+
+            $("#problem_title").text(problem_title);
+            $("#problem_description").text(problem_description);
+          }
+        }
+        else {
+          $('body').html(data);
+        }
+      });
+      return false;
+    });
+
+    $("#sel_problem_id").change(function () {
+      $("#getProblemForm").submit();
+    });
+  });
+</script>
+
+<form id="collaborationForm" action="#" method="post">
+  <table>
+    <tr>
+      <td colspan="3" style="text-align: center">
+        <p class="validateTips"></p>
+        <p>Please select the group you would like to collaborate with.</p>
+      </td>
+    </tr>
+    <tr>
+      <td width="150">Group Name:&nbsp;&nbsp;</td>
+      <td align="left">
+        <select id="sel_group_name" class="text ui-widget-content ui-corner-all">
+          <option value="group_A">Group A</option>
+          <option value="group_B">Group B</option>
+          <option value="group_C">Group C</option>
+        </select>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+  </table>
+</form>
+<form id="getProblemForm" action="#" method="post">
+</form>

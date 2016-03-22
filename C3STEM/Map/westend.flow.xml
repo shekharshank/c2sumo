@@ -1,0 +1,8 @@
+<flows>
+<flow id="flow_19485812#0" from="19485812#0" to="19479801#3"  begin="0" end="300" number="150" type="vehicledist1"/>
+<flow id="flow_19457616#2" from="19457616#2" to="19457616#7"  begin="0" end="300" number="150" type="vehicledist1"/>
+<flow id="flow_19457616#7" from="19457616#7" to="19457616#2"  begin="0" end="300" number="150" type="vehicledist1"/>
+<flow id="flow_19479459#3" from="19479459#3" to="19479457#1"  begin="0" end="300" number="300" type="vehicledist1"/>
+<flow id="flow_19479457#1" from="19479457#1" to="19479459#3"  begin="0" end="300" number="150" type="vehicledist1"/>
+<flow id="flow_19479801#3" from="19479801#3" to="19485812#0"  begin="0" end="300" number="150" type="vehicledist1"/>
+</flows>

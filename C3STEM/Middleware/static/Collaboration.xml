@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <!-- /*
+ * Copyright (c) 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */ -->
+  <ModulePrefs title="C3STEM COLLABORATIVE ENVIRONMENT">
+    <Require feature="rpc"/>
+  </ModulePrefs>
+  <Content type="html">
+  <![CDATA[
+<!DOCTYPE html>
+<html>
+<head>
+<!-- The hangout API JavaScript. Always include this first -->
+<script src="//plus.google.com/hangouts/_/api/v1/hangout.js"></script>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>  
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    
+<!-- The JavaScript for this app. This must always be a full URL not a
+     relative path.
+     Tip: You can load it from a local web server such as
+     http://localhost/app.js for faster single user development 
+<script src="c3stem.org/Scripts/Hangout.js"></script> -->
+
+<script src="//c3stem.googlecode.com/svn/trunk/Hangout.js"></script>
+       
+<script>
+/*
+function submitHangoutUrl() {
+  var url = gapi.hangout.getHangoutUrl();
+  alert(url);
+  var parent = $(parent.document.body);
+  alert(parent);
+  $(parent).find('input#hdnHangoutUrlSlave').val(url);
+  alert($(parent).find('input#hdnHangoutUrlSlave'));
+  $(parent).find('form#frmCollaboration').submit();        
+}
+
+
+$(function () {
+
+    $.get( "c3stem.org/readVehicles", function( data ) {
+      alert(data);
+      alert( "Load was performed." );
+    });
+
+  var postdata = {};
+
+  jsonData = $.ajax({
+    url: "c3stem.org/readVehicles",
+    dataType: "json",
+    async: false,
+    data: postdata
+  }).responseText;
+
+  try {
+    alert(jsonData);
+    data = jQuery.parseJSON(jsonData);
+  } 
+  catch (e) {
+    
+  }
+}); 
+
+*/
+
+function getUrlVars(hurl)
+{
+  var vars = [], hash;
+  var q = hurl.split('?')[1];
+  
+  if(q != undefined){
+      q = q.split('&');
+      for(var i = 0; i < q.length; i++){
+          hash = q[i].split('=');
+          vars.push(hash[1]);
+          vars[hash[0]] = hash[1];          
+      }
+  }
+
+  return vars;
+}
+
+function postUrl(group_name, user_name, prob_id, hurl)
+{
+    var postdata = { group_id: group_name, user_id:user_name, problem_id:prob_id, collaboration_url: hurl };
+
+    $.post('https://'+host_name+'/updateGroupUrl', postdata, function (data) {
+      var isJSON = (typeof data == 'object');
+      if (isJSON) {
+        if (data['response']['status'] == "failure")
+          alert("Unauthorized Access");
+        else {
+          //$("#dialog-message").dialog("open");
+          //alert("submittted properly");        
+        }
+      }
+      else {
+        alert("It is not JSON");
+      }
+    });
+}
+
+var onParticipantsRemoved = function(eventObj) {
+  participants_ = eventObj.removedParticipants;
+  alert(participants_.length);
+  //postUrl('Hello Faruk', hurl);
+};
+
+var onParticipantsChange = function(eventObj) {
+  participants_ = eventObj.participants;
+  alert(participants_.length);
+};
+
+function hangoutHeartbeat() {
+  // Only admin has the group_name querystring
+  // rest "users" just open up the hangout url
+  if (group_name.length > 0)
+  {
+    var hurl = gapi.hangout.getHangoutUrl();
+    postUrl(group_name, user_name, problem_id, hurl);
+  }
+  var d = new Date();
+  var n = d.toLocaleTimeString(); 
+  console.log(n);
+
+  setTimeout(hangoutHeartbeat,3000);
+}
+
+var group_name;
+var host_name;
+var user_name;
+var problem_id;
+
+/** Kick off the app. */
+function init() {
+  // When API is ready...
+  gapi.hangout.onApiReady.add(
+      function(eventObj) {
+        if (eventObj.isApiReady) {
+          try 
+          {
+            group_name = getUrlVars(document.referrer)["group_name"];
+            host_name = getUrlVars(document.referrer)["host_name"];
+            user_name = getUrlVars(document.referrer)["user_name"];
+            problem_id = getUrlVars(document.referrer)["problem_id"];
+            //gapi.hangout.ParticipantsRemovedEvent.add(onParticipantsRemoved);
+            //gapi.hangout.onParticipantsChanged.add(onParticipantsChange);            
+            hangoutHeartbeat();            
+          } 
+          catch (e) 
+          {
+            console.log('init:ERROR');
+            console.log(e);
+          }
+        }
+      });
+}
+
+
+// Wait for gadget to load.                                                      
+gadgets.util.registerOnLoadHandler(init);
+</script>
+</head>
+<body bgcolor="#E6E6FA">
+<h1>WELCOME TO THE C3STEM COLLABORATIVE LEARNING ENVIRONMENT!</h1>
+</html>
+]]></Content>
+</Module>

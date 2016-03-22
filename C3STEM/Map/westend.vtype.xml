@@ -1,0 +1,5 @@
+<vTypeDistribution id="vehicledist1">
+<vType id="Car_0" accel="6.1" decel="9.14" length="3.05" maxSpeed="44.7" sigma="1" probability="0.5"></vType>
+<vType id="Bus_1" accel="4.57" decel="7.62" length="4.57" maxSpeed="29.06" sigma="1" probability="0.3"></vType>
+<vType id="Truck_2" accel="3.05" decel="4.57" length="6.1" maxSpeed="24.59" sigma="1" probability="0.2"></vType>
+</vTypeDistribution>

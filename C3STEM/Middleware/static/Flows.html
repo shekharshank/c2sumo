@@ -1,0 +1,120 @@
+<script type="text/javascript">
+  jQuery(document).ready(function () {
+    var flow_rate = $("#flow_rate"),
+    allFields = $([]).add(flow_rate),
+    tips = $(".validateTips");
+    if(!isCurrentSimulation) {
+    	flow_rate.prop('disabled', true);
+    	$("#defineFlow_UpdateButton").prop('disabled', true);
+    }
+
+    function updateTips(t) {
+      tips
+      .text(t)
+      .addClass("ui-state-highlight");
+      setTimeout(function () {
+        tips.removeClass("ui-state-highlight", 1500);
+      }, 500);
+    }
+
+    function checkLength(o, n, min, max) {
+      if (o.val().length > max || o.val().length < min) {
+        o.addClass("ui-state-error");
+        updateTips("Length of " + n + " must be between " +
+        min + " and " + max + ".");
+        return false;
+      } else {
+        return true;
+      }
+    }
+
+    function checkRegexp(o, regexp, n) {
+      if (!(regexp.test(o.val()))) {
+        o.addClass("ui-state-error");
+        updateTips(n);
+        return false;
+      }
+      else {
+        return true;
+      }
+    }
+
+    $("#flowForm").submit(function () {
+      allFields.removeClass("ui-state-error");
+      var bValid = true;
+      bValid = bValid && checkRegexp(flow_rate, /^\d*\.?\d*$/, "Vehicle count must be decimal number.");
+
+      if (bValid) {
+        var postdata = { point_name: $("#txt_point_name").val(), flow_rate: $("#flow_rate").val() };
+        $.post('/updateFlow', postdata, function (data) {
+          var isJSON = (typeof data == 'object');
+          if (isJSON) {
+            if (data['response']['status'] == "failure")
+              alert("Unauthorized Access");
+            else {
+			  //$("#txt_flow_rate_updated").val("1");
+              updateTips("Flow rate for this start point has successfully been updated.");
+            }
+          }
+          else {
+            $('body').html(data);
+          }
+        });
+      }
+      return false;
+    });
+
+    $("#getFlowForm").submit(function () {
+      var postdata = { point_name: $("#txt_point_name").val() };
+      $.post('/readFlow', postdata, function (data) {
+
+        var isJSON = typeof data == 'object';
+        if (isJSON) {
+          if (data['response']['status'] == "failure")
+            alert("Unauthorized Access");
+          else {
+            var flow_rate_temp = data['response']['flow_rate'];
+
+            $("#flow_rate").val(flow_rate_temp);
+          }
+        }
+        else {
+          $('body').html(data);
+        }
+      });
+      return false;
+    });
+
+  });
+</script>
+
+<form id="flowForm" action="#" method="post">
+  <table>
+    <tr>
+      <td colspan="3" style="text-align: center"> <p class="validateTips">Enter flow rate (vehicle count/hour) for this point of start</p></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>Flow Rate</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>
+        <input type="text" name="flow_rate" id="flow_rate" class="text ui-widget-content ui-corner-all" size="8" />
+        <input id="txt_point_name" name="txt_point_name" type="hidden" />
+		<input id="txt_flow_rate_updated" name="txt_flow_rate_updated" type="hidden" />
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+  </table>
+</form>
+<form id="getFlowForm" action="#" method="post">
+
+</form>
+<div id="dialog-message" style="display: none;">
+  <p>
+    <span class="ui-icon ui-icon-circle-check" style="float: left; margin: 0 7px 50px 0;"></span>
+    Flow rate for this start point <br /> has successfully been updated.
+  </p>
+</div>

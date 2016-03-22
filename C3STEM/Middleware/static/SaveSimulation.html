@@ -1,0 +1,91 @@
+<script type="text/javascript">
+  jQuery(document).ready(function () {
+    var vehicle_count = $("#vehicle_count"),
+    allFields = $([]).add(vehicle_count),
+    msgBox = $(".messageLoc");
+
+    function updateMsg(msg, status) {
+      if (status == "error") {
+      	msgBox.text(msg)
+      	.addClass("ui-state-highlight");
+      	$('#sim_label').val('');
+
+      } else {
+      	msgBox.text(msg)
+      		.addClass("ui-state-highlight");
+      	setTimeout(function () {
+      		 $('#saveSimDiv').dialog("close");
+      		}, 500);
+      }
+
+    }
+
+    function validate(label) {
+
+	      if (label.trim().length == 0) {
+	        updateMsg('Label cannot be empty', "error" );
+	        return false;
+	      }
+	      else {
+	      	var user_mode = $('input:radio[name=user_mode]:checked').val();
+	      	var shared_with = $("#shared_with_select option:selected").val();
+	      	if(user_mode == "COLAB" && shared_with == "GROUP") {
+	      		updateMsg('Sharing collaboration mode simulation with others is currently not supported! Please use hangout.', "error" );
+	      		return false;
+	      	}
+	        return true;
+	      }
+    }
+
+    $("#saveSimForm").submit(function () {
+		var bValid = true;
+      	bValid = bValid && validate($("#sim_label").val());
+      	if(!bValid)
+      		return false;
+
+        var postdata = { sim_id: loadedSimulationId, sim_label: $("#sim_label").val(), shared_with: $("#shared_with_select option:selected").val() };
+        $.post('/saveSimVersion', postdata, function (data) {
+          var isJSON = (typeof data == 'object');
+          if (isJSON) {
+            if (data['response'] === "failure") {
+              alert("Unauthorized Access");
+            }
+            else if (data['response']['status'] === "exists")
+              updateMsg("Label already exists, please select a different label", "error");
+            else
+              updateMsg("Simulation saved successfully", "success");
+
+          }
+          else {
+            $('body').html(data);
+          }
+        });
+
+      return false;
+    });
+
+  });
+</script>
+
+<form id="saveSimForm" action="#" method="post">
+  <table>
+    <tr>
+      <td colspan="3" style="text-align: center"><p class="messageLoc">Enter simulation label</p></td>
+    </tr>
+    <tr>
+      <td>Name:</td>
+      <td>&nbsp;</td>
+      <td>Share With:</td>
+    </tr>
+    <tr>
+      <td>
+        <input type="text" name="sim_label" id="sim_label" class="text ui-widget-content ui-corner-all" size="12" />
+      </td>
+      <td>&nbsp;</td>
+      <td><select id="shared_with_select">
+ 		 <option value="NONE">None</option>
+ 		 <option value="GROUP">Group</option>
+	  </select></td>
+    </tr>
+  </table>
+</form>

@@ -1,0 +1,64 @@
+<script type="text/javascript">
+    jQuery(document).ready(function () {
+
+      jQuery("#vehicles").jqGrid({
+        url: '/readVehicles',
+        datatype: "json",
+        height: 150,
+        colNames: ['ID', 'Sim ID', 'Name', 'Acceleration (f/s^2)', 'Decelaration (f/s^2)', 'Driver Imperfection (0-1)', 'Max Speed (mph)', 'Length (feet)', 'Probability (0-1)'],
+        colModel: [
+		      { name: 'id', index: 'id', width: 70, sortable: false, editable: false, editoptions:{readonly:true}, hidden:true},
+          { name: 'simulation_id', index: 'simulation_id', width: 80, sortable: false, editable: false, editoptions:{readonly:true}, hidden:true},
+          { name: 'name', index: 'name', width: 70, sortable: false, editable: false, edittype: "select", editoptions: { readonly: true } },
+          { name: 'accel', index: 'accel', width: 120, align: "right", sorttype: "float", sortable: false, editable:true },
+          { name: 'decel', index: 'decel', width: 120, align: "right", sorttype: "float", sortable: false, editable: true },
+          { name: 'sigma', index: 'sigma', width: 140, align: "right", sorttype: "float", sortable: false, editable: true },
+          { name: 'max_speed', index: 'maxspeed', width: 110, align: "right", sorttype: "float", sortable: false, editable: true },
+		      { name: 'length', index: 'length', width: 90, align: "right", sorttype: "float", sortable: false, editable: true },
+          { name: 'probability', index: 'probability', width: 110, sortable: false, editable: true }
+        ],
+        multiselect: false,
+        viewrecords: true,
+        pager: '#vehNavBar',
+        caption: "Vehicle Parameters",
+        sortname: 'name',
+		    jsonReader: {
+		      root: 'vehicles',
+          id: "id",
+		      page:  function(obj) { return 1; },
+		      total: function(obj) { return 1; },
+		      records: function(obj) {return obj.vehicles.length; }
+		    },
+      });
+
+      var vehicleEditCondition = true;
+      if(!isCurrentSimulation)
+      	vehicleEditCondition = false
+
+      jQuery("#vehicles").jqGrid('navGrid', "#vehNavBar",
+			{ edit: vehicleEditCondition, add: false, del: false },
+			{mtype:"GET",reloadAfterSubmit:true,
+				url: '/updateVehicle',
+				onclickSubmit: function (params, posdata) {
+					return {};
+				}
+			}, //Edit
+			{mtype:"GET",closeAfterAdd:true,reloadAfterSubmit:true,
+				url: '/createVehicle',
+				onclickSubmit: function (params, posdata) {
+
+					return {};
+				}
+			}, //Add
+			{mtype:"GET",reloadAfterSubmit:true,
+				url: '/deleteVehicle'
+			}, //Del
+			{}
+		);
+
+      });
+</script>
+<table id="vehicles">
+</table>
+<div id="vehNavBar">
+</div>

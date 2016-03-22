@@ -1,0 +1,127 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical">
+  <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:id="@+id/linear_layout">
+       <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="2dp"
+            android:paddingRight="4dp"
+            android:lines="2"
+            android:text="@string/enter_interval"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/interval_input"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:cursorVisible="true"
+            android:inputType="number"
+            android:lines="1"
+            android:text="@string/interval_default"
+            android:textSize="14sp" />
+         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="2dp"
+            android:paddingRight="4dp"
+            android:text="@string/enter_ip"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/server_input"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:cursorVisible="true"
+            android:inputType="text"
+            android:lines="1"
+            android:text="@string/server_default"
+            android:textSize="14sp" />
+        <Button
+            android:id="@+id/runMessengerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="runThreadedMessenger"
+            android:text="@string/run_messenger"
+            android:textSize="14sp" />
+  </LinearLayout>
+   <FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <fragment
+      android:id="@+id/map"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      class="com.google.android.gms.maps.SupportMapFragment"/>
+    <LinearLayout
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="bottom|left"
+      android:orientation="vertical"
+      android:background="#ffff"
+      android:alpha="0.8"
+      android:padding="5dp">
+      <!-->LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_weight="0.5"
+          android:onClick="onClearMap"
+          android:text="@string/clear_map"/>
+        <Button
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_weight="0.5"
+          android:onClick="onResetMap"
+          android:text="@string/reset_map"/>
+      </LinearLayout-->
+      <RadioGroup
+        android:id="@+id/edit_type_radio_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" 
+        android:visibility="gone"
+        >
+        <RadioButton
+          android:id="@+id/view_radio_id"
+          android:checked="true"
+          android:onClick="editButtonChange"
+          android:text="@string/view_radio"/>
+        <RadioButton
+          android:id="@+id/edit_radio_id"
+          android:onClick="editButtonChange"
+          android:text="@string/edit_radio"/>
+      </RadioGroup>
+    </LinearLayout>
+    <!-- LinearLayout
+      android:id="@+id/button_layout_id"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="top|right"
+      android:orientation="vertical"
+      android:background="#ffff"
+      android:alpha="0.8"
+      android:padding="5dp"
+      android:visibility="gone">
+    
+       <Button
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_weight="0.5"
+          android:onClick="openCamera"
+          android:textSize="10sp"
+          android:text="@string/camera"/>
+        <Button
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_weight="0.5"
+          android:textSize="10sp"
+          android:onClick="plotLocation"
+          android:text="@string/plot_location"/>
+    </LinearLayout-->
+  </FrameLayout>
+</LinearLayout>

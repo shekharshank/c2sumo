@@ -1,0 +1,287 @@
+<turn-defs>
+<interval begin="0" end="300">
+<fromEdge id="-51067022#17">
+<toEdge id="51067022#17" probability="0"/>
+</fromEdge>
+<fromEdge id="-19493531#0">
+<toEdge id="19493531#0" probability="0"/>
+</fromEdge>
+<fromEdge id="51067022#16">
+<toEdge id="-51067022#16" probability="0"/>
+</fromEdge>
+<fromEdge id="51067022#15">
+<toEdge id="-51067022#15" probability="0"/>
+</fromEdge>
+<fromEdge id="-19503247#0">
+<toEdge id="19503247#0" probability="0"/>
+</fromEdge>
+
+<fromEdge id="-51067022#16">
+<toEdge id="19507861#3" probability="0"/>
+<toEdge id="-51067022#15" probability="1"/>
+</fromEdge>
+
+<fromEdge id="51067022#15">
+<toEdge id="19507861#3" probability="0"/>
+<toEdge id="51067022#16" probability="1"/>
+</fromEdge>
+
+<fromEdge id="-51067022#15">
+<toEdge id="19503645#0" probability="0"/>
+<toEdge id="19513865#0" probability="0"/>
+<toEdge id="-51067022#14" probability="1"/>
+</fromEdge>
+
+<fromEdge id="51067022#14">
+<toEdge id="19503645#0" probability="0"/>
+<toEdge id="19513865#0" probability="0"/>
+<toEdge id="51067022#15" probability="1"/>
+</fromEdge>
+
+<fromEdge id="-51067022#14">
+<toEdge id="19493660#0" probability="0"/>
+<toEdge id="19509517#0" probability="0"/>
+<toEdge id="-51067022#13" probability="1"/>
+</fromEdge>
+
+<fromEdge id="51067022#13">
+<toEdge id="19493660#0" probability="0"/>
+<toEdge id="19509517#0" probability="0"/>
+<toEdge id="51067022#14" probability="1"/>
+</fromEdge>
+
+<fromEdge id="-51067022#13">
+<toEdge id="19503921#0" probability="0"/>
+<toEdge id="19508893#0" probability="0"/>
+<toEdge id="-51067022#12" probability="1"/>
+</fromEdge>
+
+<fromEdge id="51067022#12">
+<toEdge id="19503921#0" probability="0"/>
+<toEdge id="19508893#0" probability="0"/>
+<toEdge id="51067022#13" probability="1"/>
+</fromEdge>
+
+<fromEdge id="-51067022#12">
+<toEdge id="19496330#0" probability="0"/>
+<toEdge id="19512472#0" probability="0"/>
+<toEdge id="-51067022#11" probability="1"/>
+</fromEdge>
+
+<fromEdge id="51067022#11">
+<toEdge id="19496330#0" probability="0"/>
+<toEdge id="19512472#0" probability="0"/>
+<toEdge id="51067022#12" probability="1"/>
+</fromEdge>
+
+<fromEdge id="-51067022#11">
+<toEdge id="19499662#0" probability="0"/>
+<toEdge id="19497737#0" probability="0"/>
+<toEdge id="-51067022#10" probability="1"/>
+</fromEdge>
+
+<fromEdge id="51067022#10">
+<toEdge id="19499662#0" probability="0"/>
+<toEdge id="19497737#0" probability="0"/>
+<toEdge id="51067022#11" probability="1"/>
+</fromEdge>
+
+<fromEdge id="-51067022#10">
+<toEdge id="19509714#0" probability="0"/>
+<toEdge id="19502044#0" probability="0"/>
+<toEdge id="-51067022#9" probability="1"/>
+</fromEdge>
+
+<fromEdge id="51067022#9">
+<toEdge id="19509714#0" probability="0"/>
+<toEdge id="19502044#0" probability="0"/>
+<toEdge id="51067022#10" probability="1"/>
+</fromEdge>
+
+<fromEdge id="-51067022#9">
+<toEdge id="19507550#0" probability="0"/>
+<toEdge id="19515288#0" probability="0"/>
+<toEdge id="-51067022#8" probability="1"/>
+</fromEdge>
+
+<fromEdge id="51067022#8">
+<toEdge id="19507550#0" probability="0"/>
+<toEdge id="19515288#0" probability="0"/>
+<toEdge id="51067022#9" probability="1"/>
+</fromEdge>
+
+
+
+
+
+
+<fromEdge id="-51067022#8">
+<toEdge id="51067022#8" probability="0"/>
+</fromEdge>
+<fromEdge id="-19514446#0">
+<toEdge id="19514446#0" probability="0"/>
+</fromEdge>
+<fromEdge id="51067022#7">
+<toEdge id="-51067022#7" probability="0"/>
+</fromEdge>
+<fromEdge id="-19514291#0">
+<toEdge id="19514291#0" probability="0"/>
+</fromEdge>
+
+<fromEdge id="19514291#0">
+<toEdge id="-19508279#11" probability="0"/>
+<toEdge id="19508279#12" probability="0"/>
+<toEdge id="19514291#1" probability="1"/>
+</fromEdge>
+<fromEdge id="-19514291#1">
+<toEdge id="-19508279#11" probability="0"/>
+<toEdge id="19508279#12" probability="0"/>
+<toEdge id="-19514291#0" probability="1"/>
+</fromEdge>
+<fromEdge id="19514291#1">
+<toEdge id="-86191971#7" probability="0"/>
+<toEdge id="86191971#8" probability="0"/>
+<toEdge id="19514291#2" probability="1"/>
+</fromEdge>
+<fromEdge id="-19514291#2">
+<toEdge id="-86191971#7" probability="0"/>
+<toEdge id="86191971#8" probability="0"/>
+<toEdge id="-19514291#1" probability="1"/>
+</fromEdge>
+
+
+
+
+
+<fromEdge id="19501516#11">
+<toEdge id="-19501516#11" probability="0"/>
+</fromEdge>
+<fromEdge id="19514291#2">
+<toEdge id="-19514291#2" probability="0"/>
+</fromEdge>
+<fromEdge id="-19501516#12">
+<toEdge id="19501516#12" probability="0"/>
+</fromEdge>
+<fromEdge id="-19514291#3">
+<toEdge id="19514291#3" probability="0"/>
+</fromEdge>
+
+<fromEdge id="-19501516#11">
+<toEdge id="-19507550#2" probability="0"/>
+<toEdge id="-19501516#10" probability="1"/>
+</fromEdge>
+<fromEdge id="19501516#10">
+<toEdge id="-19507550#2" probability="0"/>
+<toEdge id="19501516#11" probability="1"/>
+</fromEdge>
+<fromEdge id="-19501516#10">
+<toEdge id="-19509714#2" probability="0"/>
+<toEdge id="19509714#3" probability="0"/>
+<toEdge id="-19501516#9" probability="1"/>
+</fromEdge>
+<fromEdge id="19501516#9">
+<toEdge id="-19509714#2" probability="0"/>
+<toEdge id="19509714#3" probability="0"/>
+<toEdge id="19501516#10" probability="1"/>
+</fromEdge>
+<fromEdge id="-19501516#9">
+<toEdge id="19499662#3" probability="0"/>
+<toEdge id="-19499662#2" probability="0"/>
+<toEdge id="-19501516#8" probability="1"/>
+</fromEdge>
+<fromEdge id="19501516#8">
+<toEdge id="19499662#3" probability="0"/>
+<toEdge id="-19499662#2" probability="0"/>
+<toEdge id="19501516#9" probability="1"/>
+</fromEdge>
+<fromEdge id="-19501516#8">
+<toEdge id="-19496330#2" probability="0"/>
+<toEdge id="19496330#3" probability="0"/>
+<toEdge id="-19501516#7" probability="1"/>
+</fromEdge>
+<fromEdge id="19501516#7">
+<toEdge id="-19496330#2" probability="0"/>
+<toEdge id="19496330#3" probability="0"/>
+<toEdge id="19501516#8" probability="1"/>
+</fromEdge>
+<fromEdge id="-19501516#7">
+<toEdge id="-19503921#2" probability="0"/>
+<toEdge id="19503921#3" probability="0"/>
+<toEdge id="-19501516#6" probability="1"/>
+</fromEdge>
+<fromEdge id="19501516#6">
+<toEdge id="-19503921#2" probability="0"/>
+<toEdge id="19503921#3" probability="0"/>
+<toEdge id="19501516#7" probability="1"/>
+</fromEdge>
+<fromEdge id="-19501516#6">
+<toEdge id="-19493660#2" probability="0"/>
+<toEdge id="19493660#3" probability="0"/>
+<toEdge id="-19501516#5" probability="1"/>
+</fromEdge>
+<fromEdge id="19501516#5">
+<toEdge id="-19493660#2" probability="0"/>
+<toEdge id="19493660#3" probability="0"/>
+<toEdge id="19501516#6" probability="1"/>
+</fromEdge>
+<fromEdge id="-19501516#5">
+<toEdge id="-19503645#2" probability="0"/>
+<toEdge id="19503645#3" probability="0"/>
+<toEdge id="-19501516#4" probability="1"/>
+</fromEdge>
+<fromEdge id="19501516#4">
+<toEdge id="-19503645#2" probability="0"/>
+<toEdge id="19503645#3" probability="0"/>
+<toEdge id="19501516#5" probability="1"/>
+</fromEdge>
+
+<fromEdge id="19501516#3">
+<toEdge id="19507861#2" probability="0"/>
+<toEdge id="19501516#4" probability="1"/>
+</fromEdge>
+
+<fromEdge id="-19501516#4">
+<toEdge id="19507861#2" probability="0"/>
+<toEdge id="-19501516#3" probability="1"/>
+</fromEdge>
+
+
+
+
+<fromEdge id="19501516#2">
+<toEdge id="-19501516#2" probability="0"/>
+</fromEdge>
+<fromEdge id="19503247#2">
+<toEdge id="-19503247#2" probability="0"/>
+</fromEdge>
+<fromEdge id="-19501516#3">
+<toEdge id="19501516#3" probability="0"/>
+</fromEdge>
+<fromEdge id="-19501516#4">
+<toEdge id="19501516#4" probability="0"/>
+</fromEdge>
+<fromEdge id="-19503247#3">
+<toEdge id="19503247#3" probability="0"/>
+</fromEdge>
+
+<fromEdge id="-19503247#2">
+<toEdge id="-19508199" probability="0"/>
+<toEdge id="-19503247#1" probability="1"/>
+</fromEdge>
+<fromEdge id="19503247#1">
+<toEdge id="-19508199" probability="0"/>
+<toEdge id="19503247#2" probability="1"/>
+</fromEdge>
+<fromEdge id="-19503247#1">
+<toEdge id="19508279#4" probability="0"/>
+<toEdge id="-19508279#3" probability="0"/>
+<toEdge id="-19503247#0" probability="1"/>
+</fromEdge>
+<fromEdge id="19503247#0">
+<toEdge id="19508279#4" probability="0"/>
+<toEdge id="-19508279#3" probability="0"/>
+<toEdge id="19503247#1" probability="1"/>
+</fromEdge>
+
+</interval>
+</turn-defs>

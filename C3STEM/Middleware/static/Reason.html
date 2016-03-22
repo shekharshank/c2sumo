@@ -1,0 +1,60 @@
+﻿<script type="text/javascript">
+  jQuery(document).ready(function () {
+    var tips = $(".validateTips");
+
+    function updateTips(t) {
+      tips
+      .text(t)
+      .addClass("ui-state-highlight");
+      setTimeout(function () {
+        tips.removeClass("ui-state-highlight", 1500);
+      }, 500);
+    }
+
+    $("#reasonForm").submit(function () {
+      reason_desc = $("#reason_description").val();
+      if (reason_desc.length < 20) {
+        updateTips("Please provide substantial explanation!")
+      }
+      else {
+        var postdata = { desc: $("#reason_description").val() };
+        $.post('/createReason', postdata, function (data) {
+          var isJSON = (typeof data == 'object');
+          if (isJSON) {
+            if (data['response']['status'] == "failure")
+              alert("Unauthorized Access");
+            else {
+              updateTips("Your description has successfully been updated.");
+            }
+          }
+          else {
+            $('body').html(data);
+          }
+        });
+      }
+
+      return false;
+    });
+  });
+</script>
+
+<form id="reasonForm" action="#" method="post">
+  <table>
+    <tr>
+      <td style="text-align: center">
+        <p class="validateTips"></p>
+        <p>Please provide the reason for changing parameter values</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <div type="text" id="reason_title" class="text">Reason for changing value</div>
+        </b></br>
+        <textarea id="reason_description" rows="10" class="text" style="width:500px;"></textarea>        
+      </td>
+    </tr>
+  </table>
+</form>
+<form id="getProblemForm" action="#" method="post">
+</form>

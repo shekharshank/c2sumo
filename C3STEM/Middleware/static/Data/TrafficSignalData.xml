@@ -1,0 +1,19 @@
+<trafficlights>
+	    <trafficlight id="0" img_id="west_to_east" intersection_desc="1st intersection" intersection_id="202305472" lat="36.13859701906678" lng="-86.81098490953445" link_index="0g!1" name="west_to_east" state="Red" />
+	    <trafficlight id="1" img_id="west_to_north" intersection_desc="1st intersection" intersection_id="202305472" lat="36.138688920238785" lng="-86.81097283959389" link_index="2!3" name="west_to_north" state="Red" />
+	    <trafficlight id="2" img_id="south_to_north" intersection_desc="1st intersection" intersection_id="202305472" lat="36.13852502974023" lng="-86.81080654263496" link_index="4g!5!6" name="south_to_north" state="Red" />
+	    <trafficlight id="3" img_id="south_to_west" intersection_desc="1st intersection" intersection_id="202305472" lat="36.138566385318875" lng="-86.81086152791977" link_index="7!8" name="south_to_west" state="Red" />
+	    <trafficlight id="4" img_id="east_to_west" intersection_desc="1st intersection" intersection_id="202305472" lat="36.1387348707844" lng="-86.81066438555717" link_index="9g!10" name="east_to_west" state="Red" />
+	    <trafficlight id="5" img_id="east_to_south" intersection_desc="1st intersection" intersection_id="202305472" lat="36.13866441327011" lng="-86.8106871843338" link_index="11!12" name="east_to_south" state="Red" />
+	    <trafficlight id="6" img_id="north_to_south" intersection_desc="1st intersection" intersection_id="202305472" lat="36.13883902525483" lng="-86.81086957454681" link_index="13g!14!15" name="north_to_south" state="Red" />
+	    <trafficlight id="7" img_id="north_to_east" intersection_desc="1st intersection" intersection_id="202305472" lat="36.13884362030182" lng="-86.81082263588905" link_index="16!17"  name="north_to_east" state="Red" />
+
+	    <trafficlight id="8" img_id="west_to_east" intersection_desc="2nd intersection" intersection_id="202305458" lat="36.1375217673573" lng="-86.80089846253395" link_index="0g!1" name="west_to_east" state="Red" />
+	    <trafficlight id="9" img_id="west_to_north" intersection_desc="2nd intersection" intersection_id="202305458" lat="36.137610606376036" lng="-86.80089175701141" link_index="2!3" name="west_to_north" state="Red" />
+	    <trafficlight id="10" img_id="south_to_north" intersection_desc="2nd intersection" intersection_id="202305458" lat="36.137419142848366" lng="-86.80067852139473" link_index="4g!5!6" name="south_to_north" state="Red" />
+	    <trafficlight id="11" img_id="south_to_west" intersection_desc="2nd intersection" intersection_id="202305458" lat="36.13744211849635" lng="-86.80074691772461" link_index="7!8" name="south_to_west" state="Red" />
+	    <trafficlight id="12" img_id="east_to_west" intersection_desc="2nd intersection" intersection_id="202305458" lat="36.137622860025935" lng="-86.80060744285583" link_index="9g!10" name="east_to_west" state="Red" />
+	    <trafficlight id="13" img_id="east_to_south" intersection_desc="2nd intersection" intersection_id="202305458" lat="36.13757997224303" lng="-86.80061146616936" link_index="11!12" name="east_to_south" state="Red" />
+	    <trafficlight id="14" img_id="north_to_south" intersection_desc="2nd intersection" intersection_id="202305458" lat="36.137765308565186" lng="-86.80080056190491" link_index="13g!14!15" name="north_to_south" state="Red" />
+	    <trafficlight id="15" img_id="north_to_east" intersection_desc="2nd intersection" intersection_id="202305458" lat="36.13774999153036" lng="-86.80073618888855" link_index="16!17" name="north_to_east" state="Red" />
+</trafficlights>

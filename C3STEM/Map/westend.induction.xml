@@ -1,0 +1,43 @@
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.sf.net/xsd/additional_file.xsd">  
+    <!-- junction 202305472 -->
+    <inductionLoop id="-19485812#3_0_5" lane="-19485812#3_0" pos="5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="-19485812#3_1_5" lane="-19485812#3_1" pos="5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="19485812#3_1_-5" lane="19485812#3_1" pos="-5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="19485812#3_0_-5" lane="19485812#3_0" pos="-5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>       
+        
+    <inductionLoop id="19456179#4_0_-5" lane="19456179#4_0" pos="-5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="19456179#4_1_-5" lane="19456179#4_1" pos="-5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="-19456179#4_1_5" lane="-19456179#4_1" pos="5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="-19456179#4_0_5" lane="-19456179#4_0" pos="5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>    
+        
+    <inductionLoop id="19457616#3_0_-5" lane="19457616#3_0" pos="-5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="19457616#3_1_-5" lane="19457616#3_1" pos="-5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="-19457616#3_1_5" lane="-19457616#3_1" pos="5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="-19457616#3_0_5" lane="-19457616#3_0" pos="5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+        
+    <inductionLoop id="19457616#4_0_5" lane="19457616#4_0" pos="5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="19457616#4_1_5" lane="19457616#4_1" pos="5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="-19457616#4_1_-5" lane="-19457616#4_1" pos="-5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="-19457616#4_0_-5" lane="-19457616#4_0" pos="-5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    
+    <!-- junction 202305458 -->
+    <inductionLoop id="19456179#0_0_5" lane="19456179#0_0" pos="5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="19456179#0_1_5" lane="19456179#0_1" pos="5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="-19456179#0_1_-5" lane="-19456179#0_1" pos="-5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="-19456179#0_0_-5" lane="-19456179#0_0" pos="-5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>       
+            
+    <inductionLoop id="19479801#4_0_-5" lane="19479801#4_0" pos="-5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="19479801#4_1_-5" lane="19479801#4_1" pos="-5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="-19479801#4_1_5" lane="-19479801#4_1" pos="5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="-19479801#4_0_5" lane="-19479801#4_0" pos="5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>    
+            
+    <inductionLoop id="19463160#7_0_-5" lane="19463160#7_0" pos="-5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="19463160#7_1_-5" lane="19463160#7_1" pos="-5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="-19463160#7_1_5" lane="-19463160#7_1" pos="5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="-19463160#7_0_5" lane="-19463160#7_0" pos="5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+            
+    <inductionLoop id="19463160#8_0_5" lane="19463160#8_0" pos="5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="19463160#8_1_5" lane="19463160#8_1" pos="5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="-19463160#8_1_-5" lane="-19463160#8_1" pos="-5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+    <inductionLoop id="-19463160#8_0_-5" lane="-19463160#8_0" pos="-5"  freq="1"  file="../Middleware/static/Data/induction_out.xml" splitByType="true"/>
+</additional>	
