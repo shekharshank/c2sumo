@@ -1,16 +1,16 @@
-<VirtualHost *:443>
+<VirtualHost *:80>
 	ServerAdmin webmaster@localhost
 
 	DocumentRoot  /opt/C3STEM/Middleware/
-       ServerName   0.0.0.0:443
+       ServerName   0.0.0.0:80
        ServerAlias 0.0.0.0
 
-       SSLEngine On
-       SSLCertificateFile /opt/C3STEM/Middleware/c3stemcert.pem
-       SSLCertificateKeyFile /opt/C3STEM/Middleware/c3stemprivkey.pem
-       <Location />
-               SSLRequireSSL
-       </Location>
+#       SSLEngine On
+ #      SSLCertificateFile /opt/C3STEM/Middleware/c3stemcert.pem
+  #     SSLCertificateKeyFile /opt/C3STEM/Middleware/c3stemprivkey.pem
+ #      <Location />
+ #              SSLRequireSSL
+ #      </Location>
 	<Directory />
 		Options FollowSymLinks
 		AllowOverride None
